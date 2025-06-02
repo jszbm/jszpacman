@@ -1,6 +1,0 @@
-Grid size: 28x36 tiles
-Sprite size: 16x16
-
-To run in Terminal:
-cd /home/jszblackmage/Studying/GUI/PacMan
-java src/Main/Main.java
