@@ -8,37 +8,30 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 public class MainMenuFrame extends CustomFrame implements ActionListener, KeyListener {
-
     //Visual objects
-    JPanel menuPanel = new JPanel(new GridBagLayout()); //Panel containing the label with Pac-Man logo
+    JPanel menuPanel = new JPanel(new GridBagLayout());
     JLabel menuLogoLabel = new JLabel();
-    ImageIcon menuLogo = new ImageIcon("res/gui/pacman-logo.png");
+    ImageIcon menuLogo = new ImageIcon("res/gui/pacman-logo.png");;
 
     //Interactive objects
     JButton playButton = new JButton();
     JButton exitButton = new JButton();
     JButton scoresButton = new JButton();
 
-    //Threads
-
     public MainMenuFrame() {
-        setTitle("Pac-Man");
-        setIconImage(gameIcon.getImage());
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.addKeyListener(this);
-        layoutConstraints.insets = new Insets(40, 40, 40, 40);
-        createMenuLogoLabel();
+        setLayout(new BorderLayout());
 
+        addMenuLogoLabel();
         addButtons();
-
         addMenuPanel();
 
         pack();
 
-        setSize(960, 720);
-        setLocationRelativeTo(null); //Centering the frame
+        setSize(width, height);
+        setLocationRelativeTo(null);
         setResizable(true);
-        setLayout(new BorderLayout());
         setVisible(true);
         getContentPane().setBackground(Color.BLACK);
         add(menuPanel, BorderLayout.CENTER);
@@ -50,95 +43,100 @@ public class MainMenuFrame extends CustomFrame implements ActionListener, KeyLis
         menuPanel.setBackground(Color.BLACK);
     }
 
-    private void createMenuLogoLabel() {
+    private void addMenuLogoLabel() {
         Image gameLogoScaled = menuLogo.getImage().getScaledInstance(
-                menuLogo.getIconWidth() / 2,
-                menuLogo.getIconHeight() / 2,
-                Image.SCALE_SMOOTH
+                (int) (menuLogo.getIconWidth() * 0.5),
+                (int) (menuLogo.getIconHeight() * 0.5),
+                Image.SCALE_FAST
         );
 
-        menuLogo = new ImageIcon(gameLogoScaled);
-        menuLogoLabel.setIcon(menuLogo);
+        menuLogoLabel.setIcon(new ImageIcon(gameLogoScaled));
         menuLogoLabel.setVerticalAlignment(JLabel.CENTER);
         menuLogoLabel.setHorizontalAlignment(JLabel.CENTER);
         layoutConstraints.gridx = 0;
         layoutConstraints.gridy = 0;
+        layoutConstraints.weightx = 0.5;
+        layoutConstraints.weighty = 0.5;
         menuPanel.add(menuLogoLabel, layoutConstraints);
     }
 
     private void addButtons() {
-        //"PLAY" button settings
+        layoutConstraints.gridx = 0;
+        layoutConstraints.weightx = 0.2;
+        layoutConstraints.weighty = 0.2;
+        layoutConstraints.fill = GridBagConstraints.BOTH;
+
+        //"PLAY"
+        playButton.setPreferredSize(new Dimension(width / 3, 100));
         playButton.setBackground(Color.BLACK);
         playButton.setForeground(Color.WHITE);
         playButton.addActionListener(this);
-        playButton.setText("NEW GAME");
+        playButton.setText("ニューゲーム");
         playButton.setFocusable(false);
-        playButton.setFont(new Font("VT323", Font.BOLD, 50));
-        playButton.setBorder(BorderFactory.createMatteBorder(5, 5, 5, 5, Color.WHITE));
+        playButton.setFont(menuFont);
+        playButton.setBorder(buttonBorder);
+        playButton.setMargin(new Insets(10, 20, 10, 20));
+
         layoutConstraints.gridy = 1;
         menuPanel.add(playButton, layoutConstraints);
 
 
-        //"SCORES" button settings
+        //"SCORES"
+        scoresButton.setPreferredSize(new Dimension(width / 3, 100));
         scoresButton.setBackground(Color.BLACK);
         scoresButton.setForeground(Color.WHITE);
         scoresButton.addActionListener(this);
-        scoresButton.setText("SCORES");
+        scoresButton.setText("スコア");
         scoresButton.setFocusable(false);
-        scoresButton.setFont(new Font("VT323", Font.BOLD, 50));
-        scoresButton.setBorder(BorderFactory.createMatteBorder(5, 5, 5, 5, Color.WHITE));
+        scoresButton.setFont(menuFont);
+        scoresButton.setBorder(buttonBorder);
+        scoresButton.setMargin(new Insets(10, 20, 10, 20));
+
         layoutConstraints.gridy = 2;
         menuPanel.add(scoresButton, layoutConstraints);
 
-        //"EXIT" button settings
+        //"EXIT"
+        exitButton.setPreferredSize(new Dimension(width / 3, 100));
         exitButton.setBackground(Color.BLACK);
         exitButton.setForeground(Color.WHITE);
         exitButton.addActionListener(this);
-        exitButton.setText("EXIT");
+        exitButton.setText("出る");
         exitButton.setFocusable(false);
-        exitButton.setFont(new Font("VT323", Font.BOLD, 50));
-        exitButton.setBorder(BorderFactory.createMatteBorder(5, 5, 5, 5, Color.WHITE));
+        exitButton.setFont(menuFont);
+        exitButton.setBorder(buttonBorder);
+        exitButton.setMargin(new Insets(10, 20, 10, 20));
+
         layoutConstraints.gridy = 3;
         menuPanel.add(exitButton, layoutConstraints);
 
     }
 
-
     @Override
     public void keyTyped(KeyEvent e) {
-
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        //Exit on "ESC"
-        if (e.getKeyCode() == 27) {
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             System.exit(0);
         }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        //System.out.println(e.getKeyChar() + " " + e.getKeyCode());
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        //Open GameFrame
         if (e.getSource() == playButton) {
-            System.out.println(playButton.getText());
             new GameFrame();
         }
 
         if (e.getSource() == scoresButton) {
-            System.out.println(scoresButton.getText());
-            new ScoresFrame();
+            new ScoreFrame();
         }
 
         if (e.getSource() == exitButton) {
-            System.out.println(exitButton.getText());
-            //System.out.println("\\033[H\\033[2J");
-            //System.out.flush();
             System.exit(0);
         }
     }

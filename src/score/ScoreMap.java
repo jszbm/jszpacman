@@ -7,11 +7,7 @@ public class ScoreMap implements Serializable {
 
     HashMap<String, Integer> scoreMap = new HashMap<>();
 
-    public void putEntry(String name, int score) {
-        scoreMap.put(name, score);
-    }
-
-    public HashMap getMap() {
+    public HashMap<String, Integer> getMap() {
         return scoreMap;
     }
 

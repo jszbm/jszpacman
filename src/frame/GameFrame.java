@@ -1,155 +1,144 @@
 package frame;
 
-import cell.*;
-import entity.PacMan;
-import main.GameThread;
-import score.ScoreMapService;
+import controller.MazeController;
+import controller.ScoreMapController;
+import model.PacManTableCellRenderer;
+import model.cell.Cell;
+import model.entity.PacMan;
+import thread.GameThread;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;
 
 public class GameFrame extends CustomFrame implements ActionListener, KeyListener {
+    static final ScoreMapController scoreMapController = new ScoreMapController();
+    static final MazeController mazeController = new MazeController();
+
     //Game objects
     PacMan player = new PacMan();
-    ScoreMapService scoreMapService = new ScoreMapService();
 
     //Visual objects
-    int[][] mazeMap = {
-            //Empty - 0
-            //Wall - 1
-            //Tunnel - 2
-            //Dot - 3
-            //Power pellet - 4
-
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 3, 3, 1},
-            {1, 3, 1, 3, 1, 1, 3, 1, 3, 1, 1, 1, 3, 1, 3, 1, 1, 3, 1, 3, 1},
-            {1, 4, 1, 3, 3, 1, 3, 3, 3, 3, 1, 3, 3, 3, 3, 1, 3, 3, 1, 4, 1},
-            {1, 3, 1, 1, 3, 1, 3, 1, 3, 1, 1, 1, 3, 1, 3, 1, 3, 1, 1, 3, 1},
-            {1, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 3, 3, 1},
-            {1, 3, 1, 1, 1, 3, 1, 1, 3, 1, 1, 1, 3, 1, 1, 3, 1, 1, 1, 3, 1},
-            {1, 1, 1, 1, 3, 3, 3, 1, 3, 1, 3, 1, 3, 1, 3, 3, 3, 1, 1, 1, 1},
-            {0, 0, 0, 1, 3, 1, 3, 0, 0, 0, 0, 0, 0, 0, 3, 1, 3, 1, 0, 0, 0},
-            {1, 1, 1, 1, 3, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 3, 1, 1, 1, 1},
-            {2, 0, 0, 0, 3, 3, 1, 0, 1, 0, 0, 0, 1, 0, 1, 3, 3, 0, 0, 0, 2},
-            {1, 1, 1, 1, 3, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 3, 1, 1, 1, 1},
-            {0, 0, 0, 1, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 1, 0, 0, 0},
-            {1, 1, 1, 1, 3, 1, 3, 1, 1, 3, 1, 3, 1, 1, 3, 1, 3, 1, 1, 1, 1},
-            {1, 3, 3, 3, 3, 1, 3, 1, 1, 3, 1, 3, 1, 1, 3, 1, 3, 3, 3, 3, 1},
-            {1, 3, 1, 3, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 3, 1, 3, 1},
-            {1, 3, 1, 1, 1, 3, 3, 1, 3, 1, 1, 1, 3, 1, 3, 3, 1, 1, 1, 3, 1},
-            {1, 4, 3, 3, 3, 3, 1, 1, 3, 3, 1, 3, 3, 1, 1, 3, 3, 3, 3, 4, 1},
-            {1, 3, 1, 1, 1, 1, 1, 1, 1, 3, 1, 3, 1, 1, 1, 1, 1, 1, 1, 3, 1},
-            {1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1},
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-    };
-
-    JPanel mazePanel = new JPanel();
-
-    ImageIcon gameIcon = new ImageIcon("assets/PacManMirrored.png"); //Icon for the window
+    JTable mazeTable = new JTable();
     JLabel scoreLabel = new JLabel();
+    JLabel timeLabel = new JLabel();
+    JLabel livesLabel = new JLabel();
 
-    //Functional objects
     int score = 0;
 
-    //Threads
-    GameThread gameThread = new GameThread();
+    //Game thread
+    GameThread gameThread = new GameThread(this);
 
-    //Frame Constructor
-    GameFrame() {
-
-        //Header settings
-        setTitle("Pac-Man");
-        setIconImage(gameIcon.getImage());
-
-        //Input-related settings
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        addKeyListener(gameThread.getMovementHandler()); //Character movement
-        addKeyListener(this); //Exit on ESC pressed
+    public GameFrame() {
+        setLayout(new GridBagLayout());
+        layoutConstraints = new GridBagConstraints();
+        addKeyListener(gameThread.getMovementHandler());
+        addKeyListener(this);
         addWindowListener(
                 new WindowAdapter() {
                     @Override
                     public void windowClosing(WindowEvent e) {
-                        try {
-                            ScoreMapService.newScore();
-
-                        } catch (IOException ex) {
-
-                        }
-
+                        String name = JOptionPane.showInputDialog("Enter your name: ");
+                        scoreMapController.addScore(name, score);
                         gameThread.interrupt();
                     }
                 }
         );
 
+        addTextLabels();
+        addMaze();
 
-        //Draw settings
-        drawMap();
-        this.add(mazePanel, BorderLayout.NORTH);
+        pack();
 
-        //Visual settings
-        this.setSize(688, 732);
-        this.setLocationRelativeTo(null);
-        this.setResizable(true);
-        this.setLayout(new BorderLayout());
+        setSize(width, height);
+        setLocationRelativeTo(null);
+        setResizable(true);
         getContentPane().setBackground(Color.BLACK);
-        this.setVisible(true);
-
-        //Content settings
-        scoreLabel.setText("Score: " + score);
-        scoreLabel.setForeground(Color.WHITE);
-        scoreLabel.setFont(new Font("VT323", Font.BOLD, 24));
-        this.add(scoreLabel, BorderLayout.SOUTH);
+        setVisible(true);
 
         //Threads
         gameThread.start();
 
-        this.scoreMapService = scoreMapService;
-
     }
 
-    public void drawMap() {
-        mazePanel.setLayout(new GridLayout(mazeMap.length, mazeMap[0].length, 0, 0));
-        mazePanel.setSize(32 * mazeMap.length, 32 * mazeMap[0].length);
-        mazePanel.setBackground(Color.WHITE);
+    public static void main(String[] args) {
+        new GameFrame();
+    }
 
+    private static void resizeTableCells(JTable table, Dimension dimension) {
+        int cols = table.getColumnCount();
+        int rows = table.getRowCount();
 
-        for (int row = 0; row < mazeMap.length; ) {
-            for (int i = 0; i < mazeMap[row].length; ) {
-                try {
-                    switch (mazeMap[row][i]) {
-                        case 0:
-                            mazePanel.add(new Cell());
-                            break;
-                        case 1:
-                            mazePanel.add(new Wall());
-                            break;
-                        case 2:
-                            mazePanel.add(new Tunnel());
-                            break;
-                        case 3:
-                            mazePanel.add(new Dot());
-                            break;
-                        case 4:
-                            mazePanel.add(new PowerDot());
-                            break;
-                        default:
-                            mazePanel.add(new Cell());
-                    }
-                } catch (IOException e) {
-                    System.out.println("Texture could not be loaded!");
-                }
-                i++;
-            }
-            row++;
+        int cellWidth = dimension.width / cols;
+        int cellHeight = dimension.height / rows;
+        int cellSize = Math.min(cellWidth, cellHeight);
+
+        for (int i = 0; i < cols; i++) {
+            table.getColumnModel().getColumn(i).setPreferredWidth(cellSize);
         }
+
+        table.setRowHeight(cellSize);
+    }
+
+    public void addTextLabels() {
+        scoreLabel.setText("Score: " + score);
+        scoreLabel.setForeground(Color.WHITE);
+        scoreLabel.setFont(scoreListFont);
+        layoutConstraints.gridx = 0;
+        layoutConstraints.gridy = 1;
+        layoutConstraints.anchor = GridBagConstraints.LAST_LINE_START;
+        add(scoreLabel, layoutConstraints);
+
+        timeLabel.setText("Time: " + gameThread.getTimeThread().getTime());
+        timeLabel.setForeground(Color.WHITE);
+        timeLabel.setFont(scoreListFont);
+        layoutConstraints.gridx = 1;
+        layoutConstraints.gridy = 1;
+        layoutConstraints.anchor = GridBagConstraints.PAGE_END;
+        add(timeLabel, layoutConstraints);
+
+        livesLabel.setText("Lives: " + score);
+        livesLabel.setForeground(Color.WHITE);
+        livesLabel.setFont(scoreListFont);
+        layoutConstraints.gridx = 2;
+        layoutConstraints.gridy = 1;
+        layoutConstraints.anchor = GridBagConstraints.LAST_LINE_END;
+        add(livesLabel, layoutConstraints);
+    }
+
+    public void updateUi() {
+        scoreLabel.setText("Score: " + score);
+        timeLabel.setText("Time: " + gameThread.getTimeThread().getStringTime());
+        repaint();
+    }
+
+    public void addMaze() {
+        mazeTable = mazeController.createDefaultMazeTable();
+        mazeTable.setDefaultRenderer(Object.class, new PacManTableCellRenderer());
+        mazeTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        mazeTable.setEnabled(false);
+        mazeTable.setShowGrid(false);
+        mazeTable.setIntercellSpacing(new Dimension(0, 0));
+        JPanel mazePanel = new JPanel();
+        mazePanel.add(mazeTable);
+        mazePanel.setBackground(Color.BLACK);
+        layoutConstraints.weighty = 1;
+        layoutConstraints.weightx = 1;
+        layoutConstraints.gridx = 1;
+        layoutConstraints.gridy = 0;
+        layoutConstraints.fill = GridBagConstraints.BOTH;
+        layoutConstraints.anchor = GridBagConstraints.CENTER;
+        add(mazePanel, layoutConstraints);
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                resizeTableCells(mazeTable, mazePanel.getSize());
+            }
+        });
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
     }
 
     @Override
@@ -159,27 +148,15 @@ public class GameFrame extends CustomFrame implements ActionListener, KeyListene
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-
-            //Writing a score into a score map
-            scoreMapService.scoreIn = score;
-
-            try {
-                ScoreMapService.newScore();
-
-            } catch (IOException ex) {
-
-            }
-
+            String name = JOptionPane.showInputDialog("Enter you name: ");
+            scoreMapController.addScore(name, score);
             this.dispose();
             gameThread.interrupt();
-
         }
 
-        //Actions for "=" key, for debugging purposes
+        //For debugging purposes
         if (e.getKeyCode() == KeyEvent.VK_EQUALS) {
             score = score + 10;
-            scoreLabel.setText("Score: " + score);
-
         }
     }
 

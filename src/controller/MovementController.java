@@ -1,17 +1,17 @@
-package main;
+package controller;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 
 //Class for handling player movement
-public class MovementHandler implements KeyListener {
+public class MovementController implements KeyListener {
     //Up - 224
     //Down - 225
     //Left - 226
     //Right - 227
 
-    public MovementHandler() {
+    public MovementController() {
 
     }
 
