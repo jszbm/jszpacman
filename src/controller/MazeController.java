@@ -16,10 +16,10 @@ public class MazeController {
         return new PacManTableModel(maze);
     }
 
-    /*public JTable generateMazeModel() {
+    public PacManTableModel generateMazeModel() {
         var maze = mazeService.generateMaze();
         return new PacManTableModel(maze);
-    }*/
+    }
 
 
 }
