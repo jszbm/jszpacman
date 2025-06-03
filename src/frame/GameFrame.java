@@ -5,6 +5,7 @@ import controller.ScoreMapController;
 import model.PacManTableCellRenderer;
 import model.PacManTableModel;
 import model.cell.*;
+import model.entity.Entity;
 import model.entity.PacMan;
 import thread.GameThread;
 
@@ -197,6 +198,26 @@ public class GameFrame extends CustomFrame implements ActionListener {
         }
     }
 
+    public void moveEntity(Entity entity, int desiredRow, int desiredColumn) {
+        try {
+            var desiredCell = mazeTable.getValueAt(desiredRow, desiredColumn).getClass();
+
+            if (desiredCell != Wall.class && desiredCell != Gate.class) {
+                if (desiredCell == Dot.class) {
+                    score += 10;
+                }
+                if (desiredCell == PowerDot.class) {
+                    score += 100;
+                }
+
+                mazeTable.setValueAt(entity, desiredRow, desiredColumn);
+                mazeTable.setValueAt(new Cell(), entity.getRow(), entity.getColumn());
+                entity.setRow(desiredRow);
+                entity.setColumn(desiredColumn);
+            }
+        } catch (ArrayIndexOutOfBoundsException _) {}
+    }
+
     public void movePlayer(int desiredRow, int desiredColumn) {
         try {
             var desiredCell = mazeTable.getValueAt(desiredRow, desiredColumn).getClass();
@@ -216,6 +237,7 @@ public class GameFrame extends CustomFrame implements ActionListener {
             }
         } catch (ArrayIndexOutOfBoundsException _) {}
     }
+
 
     public void checkMaze() {
         PacManTableModel model = (PacManTableModel) mazeTable.getModel();
