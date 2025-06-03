@@ -37,7 +37,7 @@ public abstract class CustomFrame extends JFrame implements KeyListener {
         shortcutThread.start();
     }
 
-    public abstract void checkQuitShortcut();
+    public abstract void processQuitShortcut();
 
     @Override
     public void keyTyped(KeyEvent e) {

@@ -29,4 +29,7 @@ public class Entity extends Cell {
         this.column = column;
     }
 
+    public void setDirection(Direction direction) {
+        this.direction = direction;
+    }
 }

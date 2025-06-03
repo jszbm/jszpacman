@@ -113,7 +113,7 @@ public class MainMenuFrame extends CustomFrame implements ActionListener {
     }
 
     @Override
-    public void checkQuitShortcut() {
+    public void processQuitShortcut() {
         if (isCtrlPressed && isShiftPressed && isQPressed){
             System.exit(0);
         }

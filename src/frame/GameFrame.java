@@ -7,6 +7,7 @@ import model.PacManTableModel;
 import model.cell.*;
 import model.entity.Entity;
 import model.entity.PacMan;
+import model.entity.RedGhost;
 import thread.GameThread;
 
 import javax.swing.*;
@@ -18,7 +19,8 @@ public class GameFrame extends CustomFrame implements ActionListener {
     static final MazeController mazeController = new MazeController();
 
     //Game objects
-    PacMan player = null;
+    PacMan player;
+    RedGhost redGhost;
 
     //Visual objects
     JTable mazeTable = new JTable();
@@ -29,7 +31,7 @@ public class GameFrame extends CustomFrame implements ActionListener {
     int score = 0;
 
     //Game thread
-    GameThread gameThread = new GameThread(this);
+    GameThread gameThread;
 
     public GameFrame() {
         setLayout(new GridBagLayout());
@@ -57,6 +59,7 @@ public class GameFrame extends CustomFrame implements ActionListener {
         setVisible(true);
 
         //Threads
+        gameThread = new GameThread(this);
         gameThread.start();
 
     }
@@ -143,25 +146,78 @@ public class GameFrame extends CustomFrame implements ActionListener {
         });
     }
 
+
     public void addEntities() {
+        outer:
         for (int i = mazeTable.getRowCount() / 2 + 2; i < mazeTable.getRowCount(); i++) {
             for (int j = mazeTable.getColumnCount() / 2; j < mazeTable.getColumnCount(); j++) {
                 if (mazeTable.getValueAt(i, j).getClass() == Cell.class && player == null) {
-                    player = PacMan.getInstance();
+                    player = new PacMan();
                     addKeyListener(player);
                     mazeTable.setValueAt(player, i, j);
                     player.setRow(i);
                     player.setColumn(j);
                     System.out.println("PacMan placed at " + i + ", " + j);
-                    break;
+                    break outer;
                 }
             }
         }
+
+        outer:
+        for (int i = 0; i < mazeTable.getRowCount(); i++) {
+            for (int j = 0; j < mazeTable.getColumnCount(); j++) {
+                if (mazeTable.getValueAt(i, j).getClass() == RedGhost.class) {
+                    redGhost = (RedGhost) mazeTable.getValueAt(i, j);
+                    redGhost.setRow(i);
+                    redGhost.setColumn(j);
+                    System.out.println("Red ghost placed at " + i + ", " + j);
+                    break outer;
+                }
+            }
+        }
+
     }
 
     public void executeGameLogic() {
         checkMaze();
         processPlayer();
+        processGhost();
+    }
+
+    public void processGhost() {
+        int desiredRow;
+        int desiredColumn;
+        switch (redGhost.getDirection()) {
+            case UP:
+                desiredRow = redGhost.getRow() - 1;
+                desiredColumn = redGhost.getColumn();
+                moveEntity(redGhost, desiredRow, desiredColumn);
+                break;
+
+            case DOWN:
+                desiredRow = redGhost.getRow() + 1;
+                desiredColumn = redGhost.getColumn();
+                moveEntity(redGhost, desiredRow, desiredColumn);
+                break;
+
+            case RIGHT:
+                desiredRow = redGhost.getRow();
+                desiredColumn = redGhost.getColumn() + 1;
+                moveEntity(redGhost, desiredRow, desiredColumn);
+                break;
+
+            case LEFT:
+                desiredRow = redGhost.getRow();
+                desiredColumn = redGhost.getColumn() - 1;
+                moveEntity(redGhost, desiredRow, desiredColumn);
+                break;
+
+            case null:
+                break;
+
+        }
+
+
     }
 
     public void processPlayer() {
@@ -171,25 +227,25 @@ public class GameFrame extends CustomFrame implements ActionListener {
             case UP:
                 desiredRow = player.getRow() - 1;
                 desiredColumn = player.getColumn();
-                movePlayer(desiredRow, desiredColumn);
+                movePlayer(mazeTable, desiredRow, desiredColumn);
                 break;
 
             case DOWN:
                 desiredRow = player.getRow() + 1;
                 desiredColumn = player.getColumn();
-                movePlayer(desiredRow, desiredColumn);
+                movePlayer(mazeTable, desiredRow, desiredColumn);
                 break;
 
             case RIGHT:
                 desiredRow = player.getRow();
                 desiredColumn = player.getColumn() + 1;
-                movePlayer(desiredRow, desiredColumn);
+                movePlayer(mazeTable, desiredRow, desiredColumn);
                 break;
 
             case LEFT:
                 desiredRow = player.getRow();
                 desiredColumn = player.getColumn() - 1;
-                movePlayer(desiredRow, desiredColumn);
+                movePlayer(mazeTable, desiredRow, desiredColumn);
                 break;
 
             case null:
@@ -200,27 +256,31 @@ public class GameFrame extends CustomFrame implements ActionListener {
 
     public void moveEntity(Entity entity, int desiredRow, int desiredColumn) {
         try {
-            var desiredCell = mazeTable.getValueAt(desiredRow, desiredColumn).getClass();
+            var desiredCell = mazeTable.getValueAt(desiredRow, desiredColumn);
 
-            if (desiredCell != Wall.class && desiredCell != Gate.class) {
-                if (desiredCell == Dot.class) {
-                    score += 10;
-                }
-                if (desiredCell == PowerDot.class) {
-                    score += 100;
-                }
+            if (desiredCell.getClass() == PacMan.class) {
+                player.subtractLives();
+            }
 
+            if (desiredCell.getClass() != Wall.class && desiredCell.getClass() != Tunnel.class) {
                 mazeTable.setValueAt(entity, desiredRow, desiredColumn);
-                mazeTable.setValueAt(new Cell(), entity.getRow(), entity.getColumn());
+                mazeTable.setValueAt(desiredCell, entity.getRow(), entity.getColumn());
                 entity.setRow(desiredRow);
                 entity.setColumn(desiredColumn);
             }
-        } catch (ArrayIndexOutOfBoundsException _) {}
+        } catch (ArrayIndexOutOfBoundsException _) {
+        }
     }
 
-    public void movePlayer(int desiredRow, int desiredColumn) {
+    public void movePlayer(JTable maze, int desiredRow, int desiredColumn) {
         try {
-            var desiredCell = mazeTable.getValueAt(desiredRow, desiredColumn).getClass();
+            var desiredCell = maze.getValueAt(desiredRow, desiredColumn).getClass();
+
+            if (desiredCell == RedGhost.class && player.getLives() > 0) {
+                player.subtractLives();
+            } else if (player.getLives() == 0) {
+                gameOver();
+            }
 
             if (desiredCell != Wall.class && desiredCell != Gate.class) {
                 if (desiredCell == Dot.class) {
@@ -230,14 +290,14 @@ public class GameFrame extends CustomFrame implements ActionListener {
                     score += 100;
                 }
 
-                mazeTable.setValueAt(player, desiredRow, desiredColumn);
-                mazeTable.setValueAt(new Cell(), player.getRow(), player.getColumn());
+                maze.setValueAt(player, desiredRow, desiredColumn);
+                maze.setValueAt(new Cell(), player.getRow(), player.getColumn());
                 player.setRow(desiredRow);
                 player.setColumn(desiredColumn);
             }
-        } catch (ArrayIndexOutOfBoundsException _) {}
+        } catch (ArrayIndexOutOfBoundsException _) {
+        }
     }
-
 
     public void checkMaze() {
         PacManTableModel model = (PacManTableModel) mazeTable.getModel();
@@ -247,7 +307,7 @@ public class GameFrame extends CustomFrame implements ActionListener {
     }
 
     @Override
-    public void checkQuitShortcut() {
+    public void processQuitShortcut() {
         if (isCtrlPressed && isShiftPressed && isQPressed) {
             gameOver();
         }
@@ -261,8 +321,7 @@ public class GameFrame extends CustomFrame implements ActionListener {
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
-    }
+    public void actionPerformed(ActionEvent e) {}
 
     @Override
     public void keyPressed(KeyEvent e) {
@@ -288,4 +347,11 @@ public class GameFrame extends CustomFrame implements ActionListener {
         }
     }
 
+    public JTable getMazeTable() {
+        return mazeTable;
+    }
+
+    public RedGhost getRedGhost() {
+        return redGhost;
+    }
 }

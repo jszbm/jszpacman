@@ -19,7 +19,7 @@ public class ShortcutThread extends Thread {
             try {
                 TimeUnit.MILLISECONDS.sleep(100);
                 SwingUtilities.invokeLater(() -> {
-                    frame.checkQuitShortcut();
+                    frame.processQuitShortcut();
                 });
             } catch (InterruptedException e) {
                 break;

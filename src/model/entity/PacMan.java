@@ -9,8 +9,6 @@ import java.io.IOException;
 
 public class PacMan extends Entity implements KeyListener {
 
-    private static PacMan pacMan = null;
-
     int lives;
 
     BufferedImage textureIdle;
@@ -31,18 +29,11 @@ public class PacMan extends Entity implements KeyListener {
             textureLeftOpen = ImageIO.read(new File("res/pacman/l-open.png"));
             textureDownOpen = ImageIO.read(new File("res/pacman/d-open.png"));
         } catch (IOException e) {
-            System.err.println("Could not load PacMan sprite.");
+            System.err.println("Could not load PacMan sprite");
         }
 
         texture = textureIdle;
         this.lives = 3;
-    }
-
-    public static PacMan getInstance() {
-        if (pacMan == null){
-            pacMan = new PacMan();
-        }
-        return pacMan;
     }
 
     @Override
@@ -85,7 +76,7 @@ public class PacMan extends Entity implements KeyListener {
         return lives;
     }
 
-    public void setLives(int lives) {
-        this.lives = lives;
+    public void subtractLives() {
+        lives--;
     }
 }

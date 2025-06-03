@@ -1,6 +1,7 @@
 package model;
 
 import model.cell.*;
+import model.entity.RedGhost;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -43,6 +44,9 @@ public class PacManTableModel extends AbstractTableModel {
                         break;
                     case 5:
                         convertedMaze[row][i] = new Gate();
+                        break;
+                    case 6:
+                        convertedMaze[row][i] = new RedGhost();
                         break;
                     default:
                         convertedMaze[row][i] = new Cell();
