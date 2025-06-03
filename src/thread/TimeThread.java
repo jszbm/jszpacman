@@ -2,7 +2,7 @@ package thread;
 
 import java.util.concurrent.TimeUnit;
 
-public class TimeThread extends Thread{
+public class TimeThread extends Thread {
 
     int time = 0;
 
@@ -23,6 +23,6 @@ public class TimeThread extends Thread{
     }
 
     public String getStringTime() {
-        return String.format("%d:%02d.%02d", time/60000, time%60000/1000, time%1000);
+        return String.format("%d:%02d.%02d", time / 60000, time % 60000 / 1000, time % 1000);
     }
 }

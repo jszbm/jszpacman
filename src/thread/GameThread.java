@@ -1,30 +1,29 @@
 package thread;
 
-import controller.MovementController;
 import frame.GameFrame;
 
 import javax.swing.*;
-import java.awt.event.KeyListener;
 import java.util.concurrent.TimeUnit;
 
 public class GameThread extends Thread {
 
     GameFrame gameFrame;
 
-    PacManThread pacManThread = new PacManThread();
     TimeThread timeThread = new TimeThread();
-    MovementController movementController = new MovementController();
+    GameLogicThread gameLogicThread;
+    AnimationThread animationThread;
 
     public GameThread(GameFrame gameFrame) {
         this.gameFrame = gameFrame;
+        this.gameLogicThread = new GameLogicThread(gameFrame);
+        this.animationThread = new AnimationThread(gameFrame);
     }
 
     @Override
     public void run() {
         System.out.println("Game thread " + currentThread().getName() + " running");
         timeThread.start();
-        pacManThread.start();
-
+        gameLogicThread.start();
         while (true) {
             try {
                 TimeUnit.MICROSECONDS.sleep(16666);
@@ -32,8 +31,9 @@ public class GameThread extends Thread {
                     gameFrame.updateUi();
                 });
             } catch (InterruptedException e) {
-                pacManThread.interrupt();
                 timeThread.interrupt();
+                gameLogicThread.interrupt();
+                animationThread.interrupt();
                 break;
             }
         }
@@ -44,7 +44,4 @@ public class GameThread extends Thread {
         return timeThread;
     }
 
-    public KeyListener getMovementHandler() {
-        return movementController;
-    }
 }

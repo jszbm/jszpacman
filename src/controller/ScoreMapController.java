@@ -8,7 +8,7 @@ import java.io.*;
 public class ScoreMapController {
 
     static ScoreMap scoreMap = new ScoreMap();
-    static String scoresPath = "./scores/scores.ser";
+    static String scoresPath = "scores/scores.ser";
 
     public ScoreMapController() {
         loadScores();
@@ -63,7 +63,7 @@ public class ScoreMapController {
             fileIn.close();
             objectIn.close();
         } catch (IOException | ClassNotFoundException e) {
-            System.err.println("Could not read the file");
+            System.err.println("Could not read the scores file");
         }
     }
 

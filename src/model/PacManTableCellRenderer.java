@@ -15,9 +15,15 @@ public class PacManTableCellRenderer extends JLabel implements TableCellRenderer
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         if (value instanceof Cell) {
-           return (Cell) value;
+            return (Cell) value;
         } else {
-            return new JLabel("?");
+            System.err.println("Could not display a cell. Table cell is not of Cell class.");
         }
+        return null;
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
     }
 }

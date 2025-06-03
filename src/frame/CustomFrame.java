@@ -1,13 +1,23 @@
 package frame;
 
+import thread.ShortcutThread;
+
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
-public class CustomFrame extends JFrame {
+public abstract class CustomFrame extends JFrame implements KeyListener {
     ImageIcon gameIcon = new ImageIcon("res/gui/icon.png");
     GridBagConstraints layoutConstraints = new GridBagConstraints();
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+    ShortcutThread shortcutThread;
+
+    boolean isCtrlPressed;
+    boolean isShiftPressed;
+    boolean isQPressed;
 
     int width = 1024;
     int height = 768;
@@ -23,6 +33,34 @@ public class CustomFrame extends JFrame {
         setIconImage(gameIcon.getImage());
         layoutConstraints.insets = new Insets(height / factor, width / factor, height / factor, width / factor);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        shortcutThread = new ShortcutThread(this);
+        shortcutThread.start();
     }
 
+    public abstract void checkQuitShortcut();
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_Q) {
+            isQPressed = false;
+        }
+
+        if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
+            isCtrlPressed = false;
+        }
+
+        if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
+            isShiftPressed = false;
+        }
+    }
 }

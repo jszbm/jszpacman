@@ -3,7 +3,6 @@ package model;
 import model.cell.*;
 
 import javax.swing.table.AbstractTableModel;
-import java.io.IOException;
 
 public class PacManTableModel extends AbstractTableModel {
 
@@ -26,36 +25,43 @@ public class PacManTableModel extends AbstractTableModel {
 
         for (int row = 0; row < maze.length; ) {
             for (int i = 0; i < maze[row].length; ) {
-                try {
-                    switch (maze[row][i]) {
-                        case 0:
-                            convertedMaze[row][i] = new Cell();
-                            break;
-                        case 1:
-                            convertedMaze[row][i] = new Wall();
-                            break;
-                        case 2:
-                            convertedMaze[row][i] = new Tunnel();
-                            break;
-                        case 3:
-                            convertedMaze[row][i] = new Dot();
-                            break;
-                        case 4:
-                            convertedMaze[row][i] = new PowerDot();
-                            break;
-                        default:
-                            convertedMaze[row][i] = new Cell();
-                    }
-                } catch (IOException e) {
-                    System.out.println("Texture could not be loaded!");
+                switch (maze[row][i]) {
+                    case 0:
+                        convertedMaze[row][i] = new Cell();
+                        break;
+                    case 1:
+                        convertedMaze[row][i] = new Wall();
+                        break;
+                    case 2:
+                        convertedMaze[row][i] = new Tunnel();
+                        break;
+                    case 3:
+                        convertedMaze[row][i] = new Dot();
+                        break;
+                    case 4:
+                        convertedMaze[row][i] = new PowerDot();
+                        break;
+                    default:
+                        convertedMaze[row][i] = new Cell();
                 }
                 i++;
             }
             row++;
         }
-
         return convertedMaze;
     }
+
+    public boolean contains(Class<?> target) {
+        for (int row = 0; row < getRowCount(); row++) {
+            for (int col = 0; col < getColumnCount(); col++) {
+                if (target.isInstance(getValueAt(row, col))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 
     @Override
     public int getRowCount() {

@@ -1,17 +1,18 @@
 package frame;
 
+import thread.ShortcutThread;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
-public class MainMenuFrame extends CustomFrame implements ActionListener, KeyListener {
+public class MainMenuFrame extends CustomFrame implements ActionListener {
     //Visual objects
     JPanel menuPanel = new JPanel(new GridBagLayout());
     JLabel menuLogoLabel = new JLabel();
-    ImageIcon menuLogo = new ImageIcon("res/gui/pacman-logo.png");;
+    ImageIcon menuLogo = new ImageIcon("res/gui/pacman-logo.png");
 
     //Interactive objects
     JButton playButton = new JButton();
@@ -112,18 +113,29 @@ public class MainMenuFrame extends CustomFrame implements ActionListener, KeyLis
     }
 
     @Override
-    public void keyTyped(KeyEvent e) {
-    }
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+    public void checkQuitShortcut() {
+        if (isCtrlPressed && isShiftPressed && isQPressed){
             System.exit(0);
         }
     }
 
     @Override
-    public void keyReleased(KeyEvent e) {
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_Q) {
+            isQPressed = true;
+        }
+
+        if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
+            isCtrlPressed = true;
+        }
+
+        if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
+            isShiftPressed = true;
+        }
+
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            System.exit(0);
+        }
     }
 
     @Override

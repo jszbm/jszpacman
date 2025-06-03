@@ -3,7 +3,8 @@ package frame;
 import controller.MazeController;
 import controller.ScoreMapController;
 import model.PacManTableCellRenderer;
-import model.cell.Cell;
+import model.PacManTableModel;
+import model.cell.*;
 import model.entity.PacMan;
 import thread.GameThread;
 
@@ -11,7 +12,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class GameFrame extends CustomFrame implements ActionListener, KeyListener {
+public class GameFrame extends CustomFrame implements ActionListener {
     static final ScoreMapController scoreMapController = new ScoreMapController();
     static final MazeController mazeController = new MazeController();
 
@@ -32,8 +33,8 @@ public class GameFrame extends CustomFrame implements ActionListener, KeyListene
     public GameFrame() {
         setLayout(new GridBagLayout());
         layoutConstraints = new GridBagConstraints();
-        addKeyListener(gameThread.getMovementHandler());
         addKeyListener(this);
+        addKeyListener(player);
         addWindowListener(
                 new WindowAdapter() {
                     @Override
@@ -47,6 +48,7 @@ public class GameFrame extends CustomFrame implements ActionListener, KeyListene
 
         addTextLabels();
         addMaze();
+        addEntities();
 
         pack();
 
@@ -59,6 +61,14 @@ public class GameFrame extends CustomFrame implements ActionListener, KeyListene
         //Threads
         gameThread.start();
 
+    }
+
+    public void gameOver() {
+        shortcutThread.interrupt();
+        gameThread.interrupt();
+        String name = JOptionPane.showInputDialog("Enter you name: ");
+        scoreMapController.addScore(name, score);
+        this.dispose();
     }
 
     public static void main(String[] args) {
@@ -106,14 +116,8 @@ public class GameFrame extends CustomFrame implements ActionListener, KeyListene
         add(livesLabel, layoutConstraints);
     }
 
-    public void updateUi() {
-        scoreLabel.setText("Score: " + score);
-        timeLabel.setText("Time: " + gameThread.getTimeThread().getStringTime());
-        repaint();
-    }
-
     public void addMaze() {
-        mazeTable = mazeController.createDefaultMazeTable();
+        mazeTable = new JTable(mazeController.getDefaultMazeModel());
         mazeTable.setDefaultRenderer(Object.class, new PacManTableCellRenderer());
         mazeTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         mazeTable.setEnabled(false);
@@ -137,21 +141,144 @@ public class GameFrame extends CustomFrame implements ActionListener, KeyListene
         });
     }
 
+    public void addEntities() {
+        for (int i = mazeTable.getRowCount() / 2 + 2; i < mazeTable.getRowCount(); i++) {
+            for (int j = mazeTable.getColumnCount() / 2; j < mazeTable.getColumnCount(); j++) {
+                if (mazeTable.getValueAt(i, j).getClass() == Cell.class) {
+                    mazeTable.setValueAt(player, i, j);
+                    player.setRow(i);
+                    player.setColumn(j);
+                    System.out.println("PacMan placed at " + i + ", " + j);
+                    break;
+                }
+            }
+        }
+    }
+
+    public void executeGameLogic() {
+        checkMaze();
+        movePlayer();
+    }
+
+    public void movePlayer() {
+        int desiredRow;
+        int desiredColumn;
+        switch (player.getDirection()) {
+            case UP:
+                desiredRow = player.getRow() - 1;
+                desiredColumn = player.getColumn();
+                if (mazeTable.getValueAt(desiredRow, desiredColumn).getClass() != Wall.class) {
+                    if (mazeTable.getValueAt(desiredRow, desiredColumn).getClass() == Dot.class) {
+                        score += 10;
+                    }
+                    if (mazeTable.getValueAt(desiredRow, desiredColumn).getClass() == PowerDot.class) {
+                        score += 100;
+                    }
+
+                    mazeTable.setValueAt(player, desiredRow, desiredColumn);
+                    mazeTable.setValueAt(new Cell(), player.getRow(), player.getColumn());
+                    player.setRow(desiredRow);
+                    player.setColumn(desiredColumn);
+                }
+
+                break;
+            case DOWN:
+                desiredRow = player.getRow() + 1;
+                desiredColumn = player.getColumn();
+                if (mazeTable.getValueAt(desiredRow, desiredColumn).getClass() != Wall.class) {
+                    if (mazeTable.getValueAt(desiredRow, desiredColumn).getClass() == Dot.class) {
+                        score += 10;
+                    }
+                    if (mazeTable.getValueAt(desiredRow, desiredColumn).getClass() == PowerDot.class) {
+                        score += 100;
+                    }
+
+                    mazeTable.setValueAt(player, desiredRow, desiredColumn);
+                    mazeTable.setValueAt(new Cell(), player.getRow(), player.getColumn());
+                    player.setRow(desiredRow);
+                    player.setColumn(desiredColumn);
+
+                }
+                break;
+            case RIGHT:
+                desiredRow = player.getRow();
+                desiredColumn = player.getColumn() + 1;
+                if (mazeTable.getValueAt(desiredRow, desiredColumn).getClass() != Wall.class) {
+                    if (mazeTable.getValueAt(desiredRow, desiredColumn).getClass() == Dot.class) {
+                        score += 10;
+                    }
+                    if (mazeTable.getValueAt(desiredRow, desiredColumn).getClass() == PowerDot.class) {
+                        score += 100;
+                    }
+
+                    mazeTable.setValueAt(player, desiredRow, desiredColumn);
+                    mazeTable.setValueAt(new Cell(), player.getRow(), player.getColumn());
+                    player.setRow(desiredRow);
+                    player.setColumn(desiredColumn);
+                }
+                break;
+            case LEFT:
+                desiredRow = player.getRow();
+                desiredColumn = player.getColumn() - 1;
+                if (mazeTable.getValueAt(desiredRow, desiredColumn).getClass() != Wall.class) {
+                    if (mazeTable.getValueAt(desiredRow, desiredColumn).getClass() == Dot.class) {
+                        score += 10;
+                    }
+                    if (mazeTable.getValueAt(desiredRow, desiredColumn).getClass() == PowerDot.class) {
+                        score += 100;
+                    }
+
+                    mazeTable.setValueAt(player, desiredRow, desiredColumn);
+                    mazeTable.setValueAt(new Cell(), player.getRow(), player.getColumn());
+                    player.setRow(desiredRow);
+                    player.setColumn(desiredColumn);
+                }
+                break;
+            case null:
+                break;
+        }
+    }
+
+    public void checkMaze() {
+        PacManTableModel model = (PacManTableModel) mazeTable.getModel();
+        if (!model.contains(Dot.class)) {
+            gameOver();
+        }
+    }
+
+    @Override
+    public void checkQuitShortcut() {
+        if (isCtrlPressed && isShiftPressed && isQPressed) {
+            gameOver();
+        }
+    }
+
+    public void updateUi() {
+        scoreLabel.setText("Score: " + score);
+        timeLabel.setText("Time: " + gameThread.getTimeThread().getStringTime());
+        repaint();
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
     }
 
     @Override
-    public void keyTyped(KeyEvent e) {
-    }
-
-    @Override
     public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_Q) {
+            isQPressed = true;
+        }
+
+        if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
+            isCtrlPressed = true;
+        }
+
+        if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
+            isShiftPressed = true;
+        }
+
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            String name = JOptionPane.showInputDialog("Enter you name: ");
-            scoreMapController.addScore(name, score);
-            this.dispose();
-            gameThread.interrupt();
+            gameOver();
         }
 
         //For debugging purposes
@@ -162,6 +289,17 @@ public class GameFrame extends CustomFrame implements ActionListener, KeyListene
 
     @Override
     public void keyReleased(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_Q) {
+            isQPressed = false;
+        }
+
+        if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
+            isCtrlPressed = false;
+        }
+
+        if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
+            isShiftPressed = false;
+        }
 
     }
 }

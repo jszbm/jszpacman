@@ -1,5 +1,6 @@
 package controller;
 
+import model.PacManTableCellRenderer;
 import model.PacManTableModel;
 import service.MazeService;
 
@@ -10,15 +11,15 @@ public class MazeController {
 
     static MazeService mazeService = new MazeService();
 
-
-    public JTable createDefaultMazeTable() {
-
+    public PacManTableModel getDefaultMazeModel() {
         var maze = mazeService.getDefaultMaze();
-
-        var mazeTable = new JTable();
-        mazeTable.setModel(new PacManTableModel(maze));
-        return mazeTable;
+        return new PacManTableModel(maze);
     }
+
+    /*public JTable generateMazeModel() {
+        var maze = mazeService.generateMaze();
+        return new PacManTableModel(maze);
+    }*/
 
 
 }

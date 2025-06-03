@@ -1,16 +1,16 @@
 package frame;
 
 import controller.ScoreMapController;
+import thread.ShortcutThread;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
 
-public class ScoreFrame extends CustomFrame implements ActionListener, KeyListener {
+public class ScoreFrame extends CustomFrame implements ActionListener {
     //Score system objects
     static ScoreMapController scoreMapController = new ScoreMapController();
     //Visual objects
@@ -86,24 +86,39 @@ public class ScoreFrame extends CustomFrame implements ActionListener, KeyListen
     }
 
     @Override
+    public void checkQuitShortcut() {
+        if (isCtrlPressed && isShiftPressed && isQPressed){
+            dispose();
+        }
+    }
+
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == closeButton) {
-            this.dispose();
+            dispose();
         }
 
     }
 
     @Override
-    public void keyTyped(KeyEvent e) {
-    }
-
-    @Override
-    public void keyPressed(KeyEvent ke) {
-        if (ke.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            this.dispose();
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_Q) {
+            isQPressed = true;
         }
 
-        if (ke.getKeyCode() == KeyEvent.VK_BACK_QUOTE) {
+        if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
+            isCtrlPressed = true;
+        }
+
+        if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
+            isShiftPressed = true;
+        }
+
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            dispose();
+        }
+
+        if (e.getKeyCode() == KeyEvent.VK_BACK_QUOTE) {
             String name = JOptionPane.showInputDialog("Name: ");
             int score = Integer.parseInt(JOptionPane.showInputDialog("Score: "));
             System.out.println("Debug score");
@@ -111,7 +126,4 @@ public class ScoreFrame extends CustomFrame implements ActionListener, KeyListen
         }
     }
 
-    @Override
-    public void keyReleased(KeyEvent e) {
-    }
 }
