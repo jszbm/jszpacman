@@ -41,6 +41,9 @@ public class PacManTableModel extends AbstractTableModel {
                     case 4:
                         convertedMaze[row][i] = new PowerDot();
                         break;
+                    case 5:
+                        convertedMaze[row][i] = new Gate();
+                        break;
                     default:
                         convertedMaze[row][i] = new Cell();
                 }

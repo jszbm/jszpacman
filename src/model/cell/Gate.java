@@ -4,14 +4,14 @@ import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 
-public class Wall extends Cell {
+public class Gate extends Cell{
 
-    public Wall() {
+    public Gate() {
         try {
-            texture = ImageIO.read(new File("res/cells/wall.png"));
+            texture = ImageIO.read(new File("res/cells/gate.png"));
             setOpaque(true);
         } catch (IOException e) {
-            System.err.println("Could not load wall sprite.");
+            System.err.println("Could not load gate sprite.");
         }
     }
 

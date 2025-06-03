@@ -4,9 +4,7 @@ import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 
-public class PowerDot extends Cell {
-
-    int id = 4;
+public class PowerDot extends Dot {
 
     public PowerDot() {
         try {

@@ -6,8 +6,6 @@ import java.io.IOException;
 
 public class Dot extends Cell {
 
-    int id = 3;
-
     public Dot() {
         try {
             texture = ImageIO.read(new File("res/cells/dot.png"));

@@ -11,8 +11,6 @@ public class Cell extends JLabel {
 
     protected BufferedImage texture;
 
-    int id = 0;
-
     public Cell() {
         try {
             texture = ImageIO.read(new File("res/cells/empty.png"));
@@ -27,10 +25,6 @@ public class Cell extends JLabel {
         super.paintComponent(g);
         setBackground(Color.BLACK);
         g.drawImage(texture, 0, 0, getWidth(), getHeight(), this);
-    }
-
-    public int getId() {
-        return id;
     }
 
 }

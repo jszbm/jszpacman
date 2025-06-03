@@ -1,7 +1,5 @@
 package model.entity;
 
-import model.cell.Cell;
-
 import javax.imageio.ImageIO;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -9,12 +7,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class PacMan extends Cell implements KeyListener {
+public class PacMan extends Entity implements KeyListener {
+
+    private static PacMan pacMan = null;
 
     int lives;
-    int row;
-    int column;
-    Direction direction = null;
 
     BufferedImage textureIdle;
     BufferedImage textureRightOpen;
@@ -39,6 +36,13 @@ public class PacMan extends Cell implements KeyListener {
 
         texture = textureIdle;
         this.lives = 3;
+    }
+
+    public static PacMan getInstance() {
+        if (pacMan == null){
+            pacMan = new PacMan();
+        }
+        return pacMan;
     }
 
     @Override
@@ -77,23 +81,11 @@ public class PacMan extends Cell implements KeyListener {
 
     }
 
-    public Direction getDirection() {
-        return direction;
+    public int getLives() {
+        return lives;
     }
 
-    public int getRow() {
-        return row;
-    }
-
-    public void setRow(int row) {
-        this.row = row;
-    }
-
-    public int getColumn() {
-        return column;
-    }
-
-    public void setColumn(int column) {
-        this.column = column;
+    public void setLives(int lives) {
+        this.lives = lives;
     }
 }
