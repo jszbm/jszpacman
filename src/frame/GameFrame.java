@@ -11,40 +11,36 @@ import model.entity.RedGhost;
 import thread.GameThread;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.awt.event.*;
 
-public class GameFrame extends CustomFrame implements ActionListener {
+public class GameFrame extends CustomFrame implements WindowListener, KeyListener {
     static final ScoreMapController scoreMapController = new ScoreMapController();
     static final MazeController mazeController = new MazeController();
 
-    //Game objects
     PacMan player;
     RedGhost redGhost;
 
-    //Visual objects
     JTable mazeTable = new JTable();
+
+    JPanel mazePanel = new JPanel();
     JLabel scoreLabel = new JLabel();
     JLabel timeLabel = new JLabel();
     JLabel livesLabel = new JLabel();
 
+    int requestRows;
+    int requestColumns;
+
     int score = 0;
 
-    //Game thread
     GameThread gameThread;
 
     public GameFrame() {
-        setLayout(new GridBagLayout());
-        layoutConstraints = new GridBagConstraints();
+        addWindowListener(this);
         addKeyListener(this);
-        addWindowListener(
-                new WindowAdapter() {
-                    @Override
-                    public void windowClosing(WindowEvent e) {
-                        gameOver();
-                    }
-                }
-        );
+        //createOptionPane();
+        setLayout(new GridBagLayout());
 
         addMaze();
         addEntities();
@@ -58,30 +54,22 @@ public class GameFrame extends CustomFrame implements ActionListener {
         getContentPane().setBackground(Color.BLACK);
         setVisible(true);
 
-        //Threads
         gameThread = new GameThread(this);
         gameThread.start();
-
     }
 
-    private static void resizeTableCells(JTable table, Dimension dimension) {
-        int cols = table.getColumnCount();
-        int rows = table.getRowCount();
+    private void resizeTableCells(Dimension dimension) {
+        int cols = mazeTable.getColumnCount();
+        int rows = mazeTable.getRowCount();
 
-        int cellWidth = dimension.width / cols;
-        int cellHeight = dimension.height / rows;
-        //int cellSize = Math.min(cellWidth, cellHeight);
+        int cellSize = Math.min(dimension.width / cols, dimension.height / rows);
 
         for (int i = 0; i < cols; i++) {
-            table.getColumnModel().getColumn(i).setPreferredWidth(Math.min(cellWidth, cellHeight));
+            mazeTable.getColumnModel().getColumn(i).setPreferredWidth(cellSize);
         }
 
-        table.setRowHeight(Math.min(cellWidth, cellHeight));
+        mazeTable.setRowHeight(cellSize);
     }
-
-    /*public static void main(String[] args) {
-        new GameFrame();
-    }*/
 
     public void gameOver() {
         shortcutThread.interrupt();
@@ -91,61 +79,86 @@ public class GameFrame extends CustomFrame implements ActionListener {
         this.dispose();
     }
 
+    public void createOptionPane() {
+        JTextField rowsField = new JTextField(3);
+        JTextField columnsField = new JTextField(3);
+
+        JPanel panel = new JPanel();
+
+        panel.add(new JLabel("rows: "));
+        panel.add(rowsField);
+        panel.add(new JLabel("columns: "));
+        panel.add(columnsField);
+
+        int optionPane = JOptionPane.showConfirmDialog(null,
+                panel,
+                "Enter maze dimensions: ",
+                JOptionPane.OK_CANCEL_OPTION);
+        if (optionPane == JOptionPane.OK_OPTION) {
+            int rows = Integer.parseInt(rowsField.getText());
+            int columns = Integer.parseInt(columnsField.getText());
+
+            if (rows <= 100 && columns <= 100) {
+                requestRows = rows;
+                requestColumns = columns;
+            } else {
+                JOptionPane.showMessageDialog(null, "The maze can not be bigger than 100 x 100");
+                dispose();
+            }
+        }
+    }
+
     public void addText() {
-        layoutConstraints.gridy = 1;
-        layoutConstraints.gridx = 1;
-        layoutConstraints.fill = GridBagConstraints.NONE;
+        gbc.gridy = 1;
+        gbc.fill = GridBagConstraints.VERTICAL;
 
         scoreLabel.setText("SCORE: 0000");
         scoreLabel.setForeground(Color.WHITE);
         scoreLabel.setFont(scoreListFont);
-        layoutConstraints.gridx = 0;
-        layoutConstraints.anchor = GridBagConstraints.LAST_LINE_START;
-        add(scoreLabel, layoutConstraints);
+        gbc.gridx = 0;
+        gbc.anchor = GridBagConstraints.WEST;
+        add(scoreLabel, gbc);
 
         timeLabel.setText("TIME: 00:00");
         timeLabel.setForeground(Color.WHITE);
         timeLabel.setFont(scoreListFont);
-        layoutConstraints.gridx = 1;
-        layoutConstraints.anchor = GridBagConstraints.PAGE_END;
-        add(timeLabel, layoutConstraints);
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.CENTER;
+        add(timeLabel, gbc);
 
         livesLabel.setText("LIVES: " + player.getLives() + "   ");
         livesLabel.setForeground(Color.WHITE);
         livesLabel.setFont(scoreListFont);
-        layoutConstraints.gridx = 2;
-        layoutConstraints.anchor = GridBagConstraints.LAST_LINE_END;
-        add(livesLabel, layoutConstraints);
+        gbc.gridx = 2;
+        gbc.anchor = GridBagConstraints.EAST;
+        add(livesLabel, gbc);
     }
 
     public void addMaze() {
-        layoutConstraints.fill = GridBagConstraints.BOTH;
-        layoutConstraints.weighty = 1;
-        layoutConstraints.weightx = 1;
-        layoutConstraints.gridx = 1;
-        layoutConstraints.gridy = 0;
-        layoutConstraints.gridwidth = 3;
-        layoutConstraints.anchor = GridBagConstraints.CENTER;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weighty = 1;
+        gbc.weightx = 1;
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.gridwidth = 3;
+        gbc.anchor = GridBagConstraints.CENTER;
 
         mazeTable = new JTable(mazeController.getDefaultMazeModel());
-        //mazeTable = new JTable(mazeController.generateMazeModel());
+        //mazeTable = new JTable(mazeController.generateMazeModel(requestRows, requestColumns));
         mazeTable.setDefaultRenderer(Object.class, new PacManTableCellRenderer());
-        mazeTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         mazeTable.setEnabled(false);
         mazeTable.setShowGrid(false);
         mazeTable.setIntercellSpacing(new Dimension(0, 0));
-        JPanel mazePanel = new JPanel();
         mazePanel.add(mazeTable);
         mazePanel.setBackground(Color.BLACK);
-        add(mazePanel, layoutConstraints);
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                resizeTableCells(mazeTable, mazePanel.getSize());
+                resizeTableCells(mazePanel.getSize());
             }
         });
+        add(mazePanel, gbc);
     }
-
 
     public void addEntities() {
         outer:
@@ -170,7 +183,8 @@ public class GameFrame extends CustomFrame implements ActionListener {
                     redGhost = (RedGhost) mazeTable.getValueAt(i, j);
                     redGhost.setRow(i);
                     redGhost.setColumn(j);
-                    System.out.println("Red ghost placed at " + i + ", " + j);
+                    redGhost.getCellQueue().add(new Cell());
+                    System.out.println("Red ghost found at " + i + ", " + j);
                     break outer;
                 }
             }
@@ -179,7 +193,8 @@ public class GameFrame extends CustomFrame implements ActionListener {
     }
 
     public void executeGameLogic() {
-        checkMaze();
+        PacManTableModel model = (PacManTableModel) mazeTable.getModel();
+        checkMaze(model);
         processPlayer();
         processGhost();
     }
@@ -216,7 +231,6 @@ public class GameFrame extends CustomFrame implements ActionListener {
                 break;
 
         }
-
 
     }
 
@@ -256,15 +270,16 @@ public class GameFrame extends CustomFrame implements ActionListener {
 
     public void moveEntity(Entity entity, int desiredRow, int desiredColumn) {
         try {
-            var desiredCell = mazeTable.getValueAt(desiredRow, desiredColumn);
+            Cell desiredCell = (Cell) mazeTable.getValueAt(desiredRow, desiredColumn);
 
             if (desiredCell.getClass() == PacMan.class) {
                 player.subtractLives();
             }
 
             if (desiredCell.getClass() != Wall.class && desiredCell.getClass() != Tunnel.class) {
+                entity.getCellQueue().add(desiredCell);
                 mazeTable.setValueAt(entity, desiredRow, desiredColumn);
-                mazeTable.setValueAt(desiredCell, entity.getRow(), entity.getColumn());
+                mazeTable.setValueAt(entity.getCellQueue().poll(), entity.getRow(), entity.getColumn());
                 entity.setRow(desiredRow);
                 entity.setColumn(desiredColumn);
             }
@@ -275,6 +290,7 @@ public class GameFrame extends CustomFrame implements ActionListener {
     public void movePlayer(JTable maze, int desiredRow, int desiredColumn) {
         try {
             var desiredCell = maze.getValueAt(desiredRow, desiredColumn).getClass();
+            PacManTableModel model = (PacManTableModel) mazeTable.getModel();
 
             if (desiredCell == RedGhost.class && player.getLives() > 0) {
                 player.subtractLives();
@@ -284,9 +300,11 @@ public class GameFrame extends CustomFrame implements ActionListener {
 
             if (desiredCell != Wall.class && desiredCell != Gate.class) {
                 if (desiredCell == Dot.class) {
+                    model.deleteDot();
                     score += 10;
                 }
                 if (desiredCell == PowerDot.class) {
+                    model.deleteDot();
                     score += 100;
                 }
 
@@ -299,9 +317,8 @@ public class GameFrame extends CustomFrame implements ActionListener {
         }
     }
 
-    public void checkMaze() {
-        PacManTableModel model = (PacManTableModel) mazeTable.getModel();
-        if (!model.contains(Dot.class)) {
+    public void checkMaze(PacManTableModel model) {
+        if (model.getDotCount() == 0) {
             gameOver();
         }
     }
@@ -319,9 +336,6 @@ public class GameFrame extends CustomFrame implements ActionListener {
         livesLabel.setText("LIVES: " + player.getLives() + "   ");
         repaint();
     }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {}
 
     @Override
     public void keyPressed(KeyEvent e) {
@@ -353,5 +367,40 @@ public class GameFrame extends CustomFrame implements ActionListener {
 
     public RedGhost getRedGhost() {
         return redGhost;
+    }
+
+    @Override
+    public void windowOpened(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowClosing(WindowEvent e) {
+        gameOver();
+    }
+
+    @Override
+    public void windowClosed(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowIconified(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowDeiconified(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowActivated(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowDeactivated(WindowEvent e) {
+
     }
 }

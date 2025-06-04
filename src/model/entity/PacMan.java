@@ -1,6 +1,8 @@
 package model.entity;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
@@ -33,7 +35,7 @@ public class PacMan extends Entity implements KeyListener {
         }
 
         texture = textureIdle;
-        this.lives = 3;
+        this.lives = 1;
     }
 
     @Override

@@ -10,8 +10,7 @@ import java.awt.event.KeyListener;
 
 public abstract class CustomFrame extends JFrame implements KeyListener {
     ImageIcon gameIcon = new ImageIcon("res/gui/icon.png");
-    GridBagConstraints layoutConstraints = new GridBagConstraints();
-    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    GridBagConstraints gbc = new GridBagConstraints();
 
     ShortcutThread shortcutThread;
 
@@ -31,7 +30,7 @@ public abstract class CustomFrame extends JFrame implements KeyListener {
     public CustomFrame() {
         setTitle("Pac-Man");
         setIconImage(gameIcon.getImage());
-        layoutConstraints.insets = new Insets(height / factor, width / factor, height / factor, width / factor);
+        gbc.insets = new Insets(width / factor, width / factor, width / factor, width / factor);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         shortcutThread = new ShortcutThread(this);
         shortcutThread.start();

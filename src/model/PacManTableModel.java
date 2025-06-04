@@ -9,11 +9,7 @@ public class PacManTableModel extends AbstractTableModel {
 
     private final Cell[][] items;
     private final int[] columns;
-
-    public PacManTableModel(Cell[][] items, int[] columns) {
-        this.items = items;
-        this.columns = columns;
-    }
+    private int dotCount;
 
     public PacManTableModel(int[][] maze) {
         this.items = convert(maze);
@@ -38,9 +34,11 @@ public class PacManTableModel extends AbstractTableModel {
                         break;
                     case 3:
                         convertedMaze[row][i] = new Dot();
+                        this.dotCount++;
                         break;
                     case 4:
                         convertedMaze[row][i] = new PowerDot();
+                        this.dotCount++;
                         break;
                     case 5:
                         convertedMaze[row][i] = new Gate();
@@ -56,17 +54,6 @@ public class PacManTableModel extends AbstractTableModel {
             row++;
         }
         return convertedMaze;
-    }
-
-    public boolean contains(Class<?> target) {
-        for (int row = 0; row < getRowCount(); row++) {
-            for (int col = 0; col < getColumnCount(); col++) {
-                if (target.isInstance(getValueAt(row, col))) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
 
@@ -91,6 +78,13 @@ public class PacManTableModel extends AbstractTableModel {
         return items[rowIndex][columnIndex];
     }
 
+    public int getDotCount() {
+        return dotCount;
+    }
+
+    public void deleteDot() {
+        this.dotCount--;
+    }
 }
 
 

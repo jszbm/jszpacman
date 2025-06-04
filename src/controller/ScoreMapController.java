@@ -1,10 +1,9 @@
 package controller;
 
-import score.ScoreMap;
+import model.score.ScoreMap;
 
 import java.io.*;
 
-//Class for handling Score map manipulations
 public class ScoreMapController {
 
     static ScoreMap scoreMap = new ScoreMap();
@@ -50,7 +49,7 @@ public class ScoreMapController {
             System.err.println("Could not add a new score");
         }
 
-        System.out.println("Debug score added");
+        System.out.println("Debug model.score added");
     }
 
     public void loadScores() {

@@ -2,15 +2,23 @@ package model.entity;
 
 import model.cell.Cell;
 
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+
 public class Entity extends Cell {
 
     int row;
     int column;
-    Direction direction = null;
+    Queue<Cell> cellQueue = new ArrayBlockingQueue<>(2);
 
+    Direction direction = null;
 
     public Direction getDirection() {
         return direction;
+    }
+
+    public void setDirection(Direction direction) {
+        this.direction = direction;
     }
 
     public int getRow() {
@@ -29,7 +37,7 @@ public class Entity extends Cell {
         this.column = column;
     }
 
-    public void setDirection(Direction direction) {
-        this.direction = direction;
+    public Queue<Cell> getCellQueue() {
+        return cellQueue;
     }
 }

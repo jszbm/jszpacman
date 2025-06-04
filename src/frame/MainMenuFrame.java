@@ -1,7 +1,5 @@
 package frame;
 
-import thread.ShortcutThread;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -54,67 +52,69 @@ public class MainMenuFrame extends CustomFrame implements ActionListener {
         menuLogoLabel.setIcon(new ImageIcon(gameLogoScaled));
         menuLogoLabel.setVerticalAlignment(JLabel.CENTER);
         menuLogoLabel.setHorizontalAlignment(JLabel.CENTER);
-        layoutConstraints.gridx = 0;
-        layoutConstraints.gridy = 0;
-        layoutConstraints.weightx = 0.5;
-        layoutConstraints.weighty = 0.5;
-        menuPanel.add(menuLogoLabel, layoutConstraints);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 0.5;
+        gbc.weighty = 0.5;
+        menuPanel.add(menuLogoLabel, gbc);
     }
 
     private void addButtons() {
-        layoutConstraints.gridx = 0;
-        layoutConstraints.weightx = 0.2;
-        layoutConstraints.weighty = 0.2;
-        layoutConstraints.fill = GridBagConstraints.BOTH;
+        gbc.gridx = 0;
+        gbc.weightx = 0.2;
+        gbc.weighty = 0.2;
+        gbc.fill = GridBagConstraints.BOTH;
 
         //"PLAY"
         playButton.setPreferredSize(new Dimension(width / 3, 100));
         playButton.setBackground(Color.BLACK);
         playButton.setForeground(Color.WHITE);
         playButton.addActionListener(this);
-        playButton.setText("ニューゲーム");
+        //playButton.setText("ニューゲーム");
+        playButton.setText("NEW GAME");
         playButton.setFocusable(false);
         playButton.setFont(menuFont);
         playButton.setBorder(buttonBorder);
         playButton.setMargin(new Insets(10, 20, 10, 20));
 
-        layoutConstraints.gridy = 1;
-        menuPanel.add(playButton, layoutConstraints);
-
+        gbc.gridy = 1;
+        menuPanel.add(playButton, gbc);
 
         //"SCORES"
         scoresButton.setPreferredSize(new Dimension(width / 3, 100));
         scoresButton.setBackground(Color.BLACK);
         scoresButton.setForeground(Color.WHITE);
         scoresButton.addActionListener(this);
-        scoresButton.setText("スコア");
+        //scoresButton.setText("スコア");
+        scoresButton.setText("SCORES");
         scoresButton.setFocusable(false);
         scoresButton.setFont(menuFont);
         scoresButton.setBorder(buttonBorder);
         scoresButton.setMargin(new Insets(10, 20, 10, 20));
 
-        layoutConstraints.gridy = 2;
-        menuPanel.add(scoresButton, layoutConstraints);
+        gbc.gridy = 2;
+        menuPanel.add(scoresButton, gbc);
 
         //"EXIT"
         exitButton.setPreferredSize(new Dimension(width / 3, 100));
         exitButton.setBackground(Color.BLACK);
         exitButton.setForeground(Color.WHITE);
         exitButton.addActionListener(this);
-        exitButton.setText("出る");
+        //exitButton.setText("出る");
+        exitButton.setText("EXIT");
         exitButton.setFocusable(false);
         exitButton.setFont(menuFont);
         exitButton.setBorder(buttonBorder);
         exitButton.setMargin(new Insets(10, 20, 10, 20));
 
-        layoutConstraints.gridy = 3;
-        menuPanel.add(exitButton, layoutConstraints);
+        gbc.gridy = 3;
+        menuPanel.add(exitButton, gbc);
 
     }
 
     @Override
     public void processQuitShortcut() {
-        if (isCtrlPressed && isShiftPressed && isQPressed){
+        if (isCtrlPressed && isShiftPressed && isQPressed) {
             System.exit(0);
         }
     }

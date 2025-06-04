@@ -28,6 +28,7 @@ public class GameThread extends Thread {
         timeThread.start();
         gameLogicThread.start();
         redGhostThread.start();
+        //animationThread.start();
         while (true) {
             try {
                 TimeUnit.MICROSECONDS.sleep(16666);
@@ -37,7 +38,8 @@ public class GameThread extends Thread {
             } catch (InterruptedException e) {
                 timeThread.interrupt();
                 gameLogicThread.interrupt();
-                animationThread.interrupt();
+                //animationThread.interrupt();
+                redGhostThread.interrupt();
                 break;
             }
         }

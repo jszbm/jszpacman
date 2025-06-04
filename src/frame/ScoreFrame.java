@@ -1,7 +1,6 @@
 package frame;
 
 import controller.ScoreMapController;
-import thread.ShortcutThread;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,16 +20,15 @@ public class ScoreFrame extends CustomFrame implements ActionListener {
     public ScoreFrame() {
         this.addKeyListener(this);
         setLayout(new BorderLayout());
-        layoutConstraints.fill = GridBagConstraints.BOTH;
-        layoutConstraints.anchor = GridBagConstraints.CENTER;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.anchor = GridBagConstraints.CENTER;
+
         addButtons();
         addScorePane();
         addScoreMenuPanel();
 
-        //Draw
         pack();
 
-        //Visual
         setVisible(true);
         setSize(width, height);
         setResizable(true);
@@ -63,11 +61,11 @@ public class ScoreFrame extends CustomFrame implements ActionListener {
         scrollPane.setBorder(buttonBorder);
         scrollPane.setVerticalScrollBar(new JScrollBar());
         scrollPane.setPreferredSize(new Dimension(width / 2, height / 2));
-        layoutConstraints.gridx = 0;
-        layoutConstraints.gridy = 0;
-        layoutConstraints.weightx = 1;
-        layoutConstraints.weighty = 1;
-        scoreMenuPanel.add(scrollPane, layoutConstraints);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1;
+        gbc.weighty = 1;
+        scoreMenuPanel.add(scrollPane, gbc);
     }
 
     private void addButtons() {
@@ -75,19 +73,20 @@ public class ScoreFrame extends CustomFrame implements ActionListener {
         closeButton.setBackground(Color.BLACK);
         closeButton.setForeground(Color.WHITE);
         closeButton.addActionListener(this);
-        closeButton.setText("出る");
+        //closeButton.setText("出る");
+        closeButton.setText("CLOSE");
         closeButton.setFont(buttonFont);
         closeButton.setBorder(buttonBorder);
-        layoutConstraints.gridx = 0;
-        layoutConstraints.gridy = 1;
-        layoutConstraints.weightx = 0.1;
-        layoutConstraints.weighty = 0.1;
-        scoreMenuPanel.add(closeButton, layoutConstraints);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.weightx = 0.1;
+        gbc.weighty = 0.1;
+        scoreMenuPanel.add(closeButton, gbc);
     }
 
     @Override
     public void processQuitShortcut() {
-        if (isCtrlPressed && isShiftPressed && isQPressed){
+        if (isCtrlPressed && isShiftPressed && isQPressed) {
             dispose();
         }
     }

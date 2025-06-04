@@ -1,4 +1,5 @@
-package score;
+package model.score;
+
 
 import java.io.Serializable;
 import java.util.HashMap;

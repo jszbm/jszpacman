@@ -1,15 +1,14 @@
 package thread;
 
-import model.cell.*;
+import model.cell.Tunnel;
+import model.cell.Wall;
 import model.entity.Direction;
 import model.entity.Entity;
 
 import javax.swing.*;
-import java.lang.foreign.PaddingLayout;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class GhostThread extends Thread {
@@ -35,36 +34,38 @@ public class GhostThread extends Thread {
                 Class<?> upNeighbour = mazeTable.getValueAt(entity.getRow() - 1, entity.getColumn()).getClass();
                 Class<?> downNeighbour = mazeTable.getValueAt(entity.getRow() + 1, entity.getColumn()).getClass();
 
-                Class<?> directionNeighbour;
-                directionNeighbour = switch (currentDirection) {
-                    case UP -> mazeTable.getValueAt(entity.getRow() - 1, entity.getColumn()).getClass();
-                    case LEFT -> mazeTable.getValueAt(entity.getRow(), entity.getColumn() - 1).getClass();
-                    case DOWN -> mazeTable.getValueAt(entity.getRow() + 1, entity.getColumn()).getClass();
-                    case RIGHT -> mazeTable.getValueAt(entity.getRow(), entity.getColumn() + 1).getClass();
+                Class<?> forwardNeighbour;
+                forwardNeighbour = switch (currentDirection) {
+                    case UP -> upNeighbour;
+                    case LEFT -> leftNeighbour;
+                    case DOWN -> downNeighbour;
+                    case RIGHT -> rightNeighbour;
                 };
 
-                List<Class<?>> neighboursList;
+                List<Direction> possibleDirections = new ArrayList<>();
 
-                double random = Math.random();
-
-                if (currentDirection == Direction.DOWN || currentDirection == Direction.UP){
-                    neighboursList = new ArrayList<>(List.of(leftNeighbour, rightNeighbour));
-                    boolean containsNotWall = neighboursList.contains(Entity.class) || neighboursList.contains(Dot.class) || neighboursList.contains(Cell.class) || !neighboursList.contains(Wall.class);
-                    if (random > 0.4 && containsNotWall) {
-                        turnHorizontal();
-                    }
-                } else {
-                    neighboursList = new ArrayList<>(List.of(upNeighbour, downNeighbour));
-                    boolean containsNotWall = neighboursList.contains(Entity.class) || neighboursList.contains(Dot.class) || neighboursList.contains(Cell.class) || !neighboursList.contains(Wall.class);
-                    if (random > 0.4 && containsNotWall) {
-                        turnVertical();
-                    }
+                switch (currentDirection) {
+                    case UP:
+                    case DOWN:
+                        if (leftNeighbour != Wall.class) possibleDirections.add(Direction.LEFT);
+                        if (rightNeighbour != Wall.class) possibleDirections.add(Direction.RIGHT);
+                        break;
+                    case LEFT:
+                    case RIGHT:
+                        if (upNeighbour != Wall.class) possibleDirections.add(Direction.UP);
+                        if (downNeighbour != Wall.class) possibleDirections.add(Direction.DOWN);
+                        break;
                 }
 
-                if (directionNeighbour == Wall.class) {
-                    chooseDirection();
+                if (!possibleDirections.isEmpty() && Math.random() > 0.4) {
+                    Collections.shuffle(possibleDirections);
+                    entity.setDirection(possibleDirections.getFirst());
+                    continue;
                 }
 
+                if (forwardNeighbour == Wall.class || forwardNeighbour == Tunnel.class) {
+                    entity.setDirection(getReverse(currentDirection));
+                }
 
             } catch (InterruptedException e) {
                 break;
@@ -79,22 +80,14 @@ public class GhostThread extends Thread {
         entity.setDirection(allDirections.getFirst());
     }
 
-    void turnHorizontal() {
-        if (Math.random() > 0.5){
-            entity.setDirection(Direction.LEFT);
-        } else {
-            entity.setDirection(Direction.RIGHT);
-        }
-
+    private Direction getReverse(Direction dir) {
+        return switch (dir) {
+            case UP -> Direction.DOWN;
+            case DOWN -> Direction.UP;
+            case LEFT -> Direction.RIGHT;
+            case RIGHT -> Direction.LEFT;
+        };
     }
 
-    void turnVertical() {
-        if (Math.random() > 0.5){
-            entity.setDirection(Direction.UP);
-        } else {
-            entity.setDirection(Direction.DOWN);
-        }
-
-    }
 
 }

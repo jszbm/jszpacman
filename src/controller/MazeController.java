@@ -1,11 +1,7 @@
 package controller;
 
-import model.PacManTableCellRenderer;
 import model.PacManTableModel;
 import service.MazeService;
-
-import javax.swing.*;
-
 
 public class MazeController {
 
@@ -16,8 +12,8 @@ public class MazeController {
         return new PacManTableModel(maze);
     }
 
-    public PacManTableModel generateMazeModel() {
-        var maze = mazeService.generateMaze();
+    public PacManTableModel generateMazeModel(int rows, int columns) {
+        var maze = mazeService.generateMaze(rows, columns);
         return new PacManTableModel(maze);
     }
 
