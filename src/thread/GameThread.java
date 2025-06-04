@@ -31,7 +31,7 @@ public class GameThread extends Thread {
         //animationThread.start();
         while (true) {
             try {
-                TimeUnit.MICROSECONDS.sleep(16666);
+                TimeUnit.MICROSECONDS.sleep(33333);
                 SwingUtilities.invokeLater(() -> {
                     gameFrame.updateUi();
                 });

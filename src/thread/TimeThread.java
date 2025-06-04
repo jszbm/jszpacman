@@ -19,7 +19,6 @@ public class TimeThread extends Thread {
     }
 
     public String getStringTime() {
-
         return String.format("%02d:%02d", time / 60, time);
     }
 }

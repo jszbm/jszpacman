@@ -11,7 +11,6 @@ import model.entity.RedGhost;
 import thread.GameThread;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -39,7 +38,7 @@ public class GameFrame extends CustomFrame implements WindowListener, KeyListene
     public GameFrame() {
         addWindowListener(this);
         addKeyListener(this);
-        //createOptionPane();
+        promptForMazeSize();
         setLayout(new GridBagLayout());
 
         addMaze();
@@ -58,19 +57,6 @@ public class GameFrame extends CustomFrame implements WindowListener, KeyListene
         gameThread.start();
     }
 
-    private void resizeTableCells(Dimension dimension) {
-        int cols = mazeTable.getColumnCount();
-        int rows = mazeTable.getRowCount();
-
-        int cellSize = Math.min(dimension.width / cols, dimension.height / rows);
-
-        for (int i = 0; i < cols; i++) {
-            mazeTable.getColumnModel().getColumn(i).setPreferredWidth(cellSize);
-        }
-
-        mazeTable.setRowHeight(cellSize);
-    }
-
     public void gameOver() {
         shortcutThread.interrupt();
         gameThread.interrupt();
@@ -79,7 +65,7 @@ public class GameFrame extends CustomFrame implements WindowListener, KeyListene
         this.dispose();
     }
 
-    public void createOptionPane() {
+    public void promptForMazeSize() {
         JTextField rowsField = new JTextField(3);
         JTextField columnsField = new JTextField(3);
 
@@ -143,8 +129,8 @@ public class GameFrame extends CustomFrame implements WindowListener, KeyListene
         gbc.gridwidth = 3;
         gbc.anchor = GridBagConstraints.CENTER;
 
-        mazeTable = new JTable(mazeController.getDefaultMazeModel());
-        //mazeTable = new JTable(mazeController.generateMazeModel(requestRows, requestColumns));
+        //mazeTable = new JTable(mazeController.getDefaultMazeModel());
+        mazeTable = new JTable(mazeController.generateMazeModel(requestRows, requestColumns));
         mazeTable.setDefaultRenderer(Object.class, new PacManTableCellRenderer());
         mazeTable.setEnabled(false);
         mazeTable.setShowGrid(false);
@@ -192,39 +178,61 @@ public class GameFrame extends CustomFrame implements WindowListener, KeyListene
 
     }
 
-    public void executeGameLogic() {
-        PacManTableModel model = (PacManTableModel) mazeTable.getModel();
-        checkMaze(model);
-        processPlayer();
-        processGhost();
+    public void updateUi() {
+        scoreLabel.setText("SCORE: " + String.format("%04d", score));
+        timeLabel.setText("TIME: " + gameThread.getTimeThread().getStringTime());
+        livesLabel.setText("LIVES: " + player.getLives() + "   ");
+        repaint();
     }
 
-    public void processGhost() {
+    private void resizeTableCells(Dimension dimension) {
+        int cols = mazeTable.getColumnCount();
+        int rows = mazeTable.getRowCount();
+
+        int cellSize = Math.min(dimension.width / cols, dimension.height / rows);
+
+        for (int i = 0; i < cols; i++) {
+            mazeTable.getColumnModel().getColumn(i).setPreferredWidth(cellSize);
+        }
+
+        mazeTable.setRowHeight(cellSize);
+    }
+
+    public void executeGameLogic() {
+        checkMaze((PacManTableModel) mazeTable.getModel());
+        movePlayer();
+        moveRedGhost();
+    }
+
+    public void moveRedGhost() {
         int desiredRow;
         int desiredColumn;
+        int row = redGhost.getRow();
+        int column = redGhost.getColumn();
+
         switch (redGhost.getDirection()) {
             case UP:
-                desiredRow = redGhost.getRow() - 1;
-                desiredColumn = redGhost.getColumn();
-                moveEntity(redGhost, desiredRow, desiredColumn);
+                desiredRow = row - 1;
+                desiredColumn = column;
+                processEntity(redGhost, desiredRow, desiredColumn);
                 break;
 
             case DOWN:
-                desiredRow = redGhost.getRow() + 1;
-                desiredColumn = redGhost.getColumn();
-                moveEntity(redGhost, desiredRow, desiredColumn);
+                desiredRow = row + 1;
+                desiredColumn = column;
+                processEntity(redGhost, desiredRow, desiredColumn);
                 break;
 
             case RIGHT:
-                desiredRow = redGhost.getRow();
-                desiredColumn = redGhost.getColumn() + 1;
-                moveEntity(redGhost, desiredRow, desiredColumn);
+                desiredRow = row;
+                desiredColumn = column + 1;
+                processEntity(redGhost, desiredRow, desiredColumn);
                 break;
 
             case LEFT:
-                desiredRow = redGhost.getRow();
-                desiredColumn = redGhost.getColumn() - 1;
-                moveEntity(redGhost, desiredRow, desiredColumn);
+                desiredRow = row;
+                desiredColumn = column - 1;
+                processEntity(redGhost, desiredRow, desiredColumn);
                 break;
 
             case null:
@@ -234,32 +242,35 @@ public class GameFrame extends CustomFrame implements WindowListener, KeyListene
 
     }
 
-    public void processPlayer() {
+    public void movePlayer() {
         int desiredRow;
         int desiredColumn;
+        int row = player.getRow();
+        int column = player.getColumn();
+
         switch (player.getDirection()) {
             case UP:
-                desiredRow = player.getRow() - 1;
-                desiredColumn = player.getColumn();
-                movePlayer(mazeTable, desiredRow, desiredColumn);
+                desiredRow = row - 1;
+                desiredColumn = column;
+                processPlayer(mazeTable, desiredRow, desiredColumn);
                 break;
 
             case DOWN:
-                desiredRow = player.getRow() + 1;
-                desiredColumn = player.getColumn();
-                movePlayer(mazeTable, desiredRow, desiredColumn);
+                desiredRow = row + 1;
+                desiredColumn = column;
+                processPlayer(mazeTable, desiredRow, desiredColumn);
                 break;
 
             case RIGHT:
-                desiredRow = player.getRow();
-                desiredColumn = player.getColumn() + 1;
-                movePlayer(mazeTable, desiredRow, desiredColumn);
+                desiredRow = row;
+                desiredColumn = column + 1;
+                processPlayer(mazeTable, desiredRow, desiredColumn);
                 break;
 
             case LEFT:
-                desiredRow = player.getRow();
-                desiredColumn = player.getColumn() - 1;
-                movePlayer(mazeTable, desiredRow, desiredColumn);
+                desiredRow = row;
+                desiredColumn = column - 1;
+                processPlayer(mazeTable, desiredRow, desiredColumn);
                 break;
 
             case null:
@@ -268,7 +279,7 @@ public class GameFrame extends CustomFrame implements WindowListener, KeyListene
         }
     }
 
-    public void moveEntity(Entity entity, int desiredRow, int desiredColumn) {
+    public void processEntity(Entity entity, int desiredRow, int desiredColumn) {
         try {
             Cell desiredCell = (Cell) mazeTable.getValueAt(desiredRow, desiredColumn);
 
@@ -287,7 +298,7 @@ public class GameFrame extends CustomFrame implements WindowListener, KeyListene
         }
     }
 
-    public void movePlayer(JTable maze, int desiredRow, int desiredColumn) {
+    public void processPlayer(JTable maze, int desiredRow, int desiredColumn) {
         try {
             var desiredCell = maze.getValueAt(desiredRow, desiredColumn).getClass();
             PacManTableModel model = (PacManTableModel) mazeTable.getModel();
@@ -328,13 +339,6 @@ public class GameFrame extends CustomFrame implements WindowListener, KeyListene
         if (isCtrlPressed && isShiftPressed && isQPressed) {
             gameOver();
         }
-    }
-
-    public void updateUi() {
-        scoreLabel.setText("SCORE: " + String.format("%04d", score));
-        timeLabel.setText("TIME: " + gameThread.getTimeThread().getStringTime());
-        livesLabel.setText("LIVES: " + player.getLives() + "   ");
-        repaint();
     }
 
     @Override

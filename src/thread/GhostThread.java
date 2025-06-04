@@ -27,15 +27,18 @@ public class GhostThread extends Thread {
             try {
                 TimeUnit.MILLISECONDS.sleep(50);
 
-                Direction currentDirection = entity.getDirection();
+                Direction direction = entity.getDirection();
 
-                Class<?> leftNeighbour = mazeTable.getValueAt(entity.getRow(), entity.getColumn() - 1).getClass();
-                Class<?> rightNeighbour = mazeTable.getValueAt(entity.getRow(), entity.getColumn() + 1).getClass();
-                Class<?> upNeighbour = mazeTable.getValueAt(entity.getRow() - 1, entity.getColumn()).getClass();
-                Class<?> downNeighbour = mazeTable.getValueAt(entity.getRow() + 1, entity.getColumn()).getClass();
+                int column = entity.getColumn();
+                int row = entity.getRow();
+
+                Class<?> leftNeighbour = mazeTable.getValueAt(row, column - 1).getClass();
+                Class<?> rightNeighbour = mazeTable.getValueAt(row, column + 1).getClass();
+                Class<?> upNeighbour = mazeTable.getValueAt(row - 1, column).getClass();
+                Class<?> downNeighbour = mazeTable.getValueAt(row + 1, column).getClass();
 
                 Class<?> forwardNeighbour;
-                forwardNeighbour = switch (currentDirection) {
+                forwardNeighbour = switch (direction) {
                     case UP -> upNeighbour;
                     case LEFT -> leftNeighbour;
                     case DOWN -> downNeighbour;
@@ -44,7 +47,7 @@ public class GhostThread extends Thread {
 
                 List<Direction> possibleDirections = new ArrayList<>();
 
-                switch (currentDirection) {
+                switch (direction) {
                     case UP:
                     case DOWN:
                         if (leftNeighbour != Wall.class) possibleDirections.add(Direction.LEFT);
@@ -64,20 +67,13 @@ public class GhostThread extends Thread {
                 }
 
                 if (forwardNeighbour == Wall.class || forwardNeighbour == Tunnel.class) {
-                    entity.setDirection(getReverse(currentDirection));
+                    entity.setDirection(getReverse(direction));
                 }
 
             } catch (InterruptedException e) {
                 break;
             }
         }
-    }
-
-    void chooseDirection() {
-        List<Direction> allDirections = new ArrayList<>(List.of(Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT));
-        allDirections.remove(entity.getDirection());
-        Collections.shuffle(allDirections);
-        entity.setDirection(allDirections.getFirst());
     }
 
     private Direction getReverse(Direction dir) {
