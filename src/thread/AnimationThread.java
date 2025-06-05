@@ -17,9 +17,11 @@ public class AnimationThread extends Thread {
     public void run() {
         while (true) {
             try {
-                TimeUnit.MILLISECONDS.sleep(50);
+                TimeUnit.MILLISECONDS.sleep(100);
                 SwingUtilities.invokeLater(() -> {
                     //gameFrame.animatePlayer();
+                    gameFrame.updateUi();
+                    gameFrame.repaint();
                 });
             } catch (InterruptedException e) {
                 break;

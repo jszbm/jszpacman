@@ -25,7 +25,7 @@ public class GhostThread extends Thread {
     public void run() {
         while (true) {
             try {
-                TimeUnit.MILLISECONDS.sleep(50);
+                TimeUnit.MILLISECONDS.sleep(100);
 
                 Direction direction = entity.getDirection();
 

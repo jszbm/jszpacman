@@ -28,17 +28,14 @@ public class GameThread extends Thread {
         timeThread.start();
         gameLogicThread.start();
         redGhostThread.start();
-        //animationThread.start();
+        animationThread.start();
         while (true) {
             try {
                 TimeUnit.MICROSECONDS.sleep(33333);
-                SwingUtilities.invokeLater(() -> {
-                    gameFrame.updateUi();
-                });
             } catch (InterruptedException e) {
                 timeThread.interrupt();
                 gameLogicThread.interrupt();
-                //animationThread.interrupt();
+                animationThread.interrupt();
                 redGhostThread.interrupt();
                 break;
             }
