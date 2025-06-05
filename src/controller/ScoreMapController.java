@@ -3,6 +3,9 @@ package controller;
 import model.score.ScoreMap;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class ScoreMapController {
 
@@ -20,7 +23,7 @@ public class ScoreMapController {
             try {
                 FileOutputStream fileOut = new FileOutputStream(scoresPath);
                 ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
-                scoreMap.getMap().put(name, score);
+                scoreMap.putScore(name, score);
 
                 objectOut.writeObject(scoreMap);
 
@@ -39,7 +42,7 @@ public class ScoreMapController {
             ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
 
             System.out.println(name + ": " + score);
-            scoreMap.getMap().put(name, score);
+            scoreMap.putScore(name, score);
 
             objectOut.writeObject(scoreMap);
 
@@ -49,7 +52,7 @@ public class ScoreMapController {
             System.err.println("Could not add a new score");
         }
 
-        System.out.println("Debug model.score added");
+        System.out.println("Debug score added");
     }
 
     public void loadScores() {
@@ -61,8 +64,10 @@ public class ScoreMapController {
 
             fileIn.close();
             objectIn.close();
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             System.err.println("Could not read the scores file");
+        } catch (ClassNotFoundException ex) {
+            System.err.println("Class not found");
         }
     }
 
