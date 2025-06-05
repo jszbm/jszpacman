@@ -5,7 +5,7 @@ import model.cell.Cell;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
-public class Entity extends Cell {
+public abstract class Entity extends Cell {
 
     int row;
     int column;
@@ -20,6 +20,8 @@ public class Entity extends Cell {
     public void setDirection(Direction direction) {
         this.direction = direction;
     }
+
+    public abstract void nextTexture();
 
     public int getRow() {
         return row;
