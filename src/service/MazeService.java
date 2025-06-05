@@ -2,10 +2,7 @@ package service;
 
 import model.cell.Cell;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 public class MazeService {
 
@@ -20,6 +17,7 @@ public class MazeService {
             //Power pellet - 4
             //Gate - 5
             //Red ghost - 6
+            //Pac Man - 7
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
             {1, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 3, 3, 1},
             {1, 3, 1, 3, 1, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 1, 3, 1, 3, 1},
@@ -32,7 +30,7 @@ public class MazeService {
             {1, 1, 1, 1, 3, 1, 1, 0, 1, 1, 5, 1, 1, 0, 1, 1, 3, 1, 1, 1, 1},
             {2, 0, 0, 0, 3, 1, 1, 0, 1, 6, 0, 0, 1, 0, 1, 1, 3, 0, 0, 0, 2},
             {1, 1, 1, 1, 3, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 3, 1, 1, 1, 1},
-            {0, 0, 0, 1, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 1, 0, 0, 0},
+            {0, 0, 0, 1, 3, 3, 3, 0, 0, 0, 7, 0, 0, 0, 3, 3, 3, 1, 0, 0, 0},
             {1, 1, 1, 1, 3, 1, 3, 1, 1, 3, 1, 3, 1, 1, 3, 1, 3, 1, 1, 1, 1},
             {1, 3, 3, 3, 3, 1, 3, 1, 1, 3, 1, 3, 1, 1, 3, 1, 3, 3, 3, 3, 1},
             {1, 3, 1, 3, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 3, 1, 3, 1},
@@ -41,6 +39,15 @@ public class MazeService {
             {1, 3, 1, 1, 1, 1, 3, 1, 1, 3, 1, 3, 1, 1, 3, 1, 1, 1, 1, 3, 1},
             {1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1},
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+    };
+
+    // 5x7
+    int[][] cage = {
+            {0, 0, 0, 0, 0, 0, 0},
+            {0, 1, 1, 5, 1, 1, 0},
+            {0, 1, 6, 0, 0, 1, 0},
+            {0, 1, 1, 1, 1, 1, 0},
+            {0, 0, 0, 7, 0, 0, 0}
     };
 
     int[][] wideMaze = {
@@ -66,23 +73,35 @@ public class MazeService {
     public int[][] generateMaze(int rows, int columns) {
 
         int[][] maze = new int[rows][columns];
+        int centerRow = rows / 2;
+        int centerColumn = columns / 2;
+
+        for (int i = 0; i < rows; i++) {
+            Arrays.fill(maze[i], 3);
+        }
 
         for (int i = 0; i < maze.length; i++){
-
             if(i == 0 || i == rows - 1){
                 Arrays.fill(maze[i], 1);
             }
-
             maze[i][0] = 1;
             maze[i][columns - 1] = 1;
         }
 
+        //Insert the cage
+        for (int i = 0; i < cage.length; i++) {
+            for (int j = 0; j < cage[i].length; j++) {
+                int targetRow = centerRow - 2 + i;
+                int targetCol = centerColumn - 3 + j;
 
-        maze[4][4] = 6;
+                if (targetRow < maze.length && targetCol < maze[0].length) {
+                    maze[targetRow][targetCol] = cage[i][j];
+                }
+            }
+        }
 
-        maze [2][2] = 3;
-
-        System.out.println("generated");
+        System.out.println("Generated: " + rows + " " + columns);
+        System.out.println("Center: " + centerRow + " " + centerColumn);
 
         return maze;
     }
