@@ -13,7 +13,8 @@ public class TimeThread extends Thread {
                 TimeUnit.SECONDS.sleep(1);
                 time++;
             } catch (InterruptedException e) {
-                break;
+                interrupt();
+                return;
             }
         }
     }

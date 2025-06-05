@@ -2,7 +2,6 @@ package thread;
 
 import frame.GameFrame;
 
-import javax.swing.*;
 import java.util.concurrent.TimeUnit;
 
 public class GameThread extends Thread {
@@ -12,14 +11,14 @@ public class GameThread extends Thread {
     TimeThread timeThread;
     GameLogicThread gameLogicThread;
     AnimationThread animationThread;
-    GhostThread redGhostThread;
+    RedGhostThread redGhostThread;
 
     public GameThread(GameFrame gameFrame) {
         this.gameFrame = gameFrame;
-        this.gameLogicThread = new GameLogicThread(gameFrame);
-        this.animationThread = new AnimationThread(gameFrame);
-        this.redGhostThread = new GhostThread(gameFrame.getRedGhost(), gameFrame.getMazeTable());
-        this.timeThread = new TimeThread();
+        gameLogicThread = new GameLogicThread(gameFrame);
+        animationThread = new AnimationThread(gameFrame);
+        redGhostThread = new RedGhostThread(gameFrame.getRedGhost(), gameFrame.getMazeTable());
+        timeThread = new TimeThread();
     }
 
     @Override
@@ -29,17 +28,18 @@ public class GameThread extends Thread {
         gameLogicThread.start();
         redGhostThread.start();
         animationThread.start();
-        while (true) {
-            try {
+
+        try {
+            while (isAlive()) {
                 TimeUnit.MICROSECONDS.sleep(33333);
-            } catch (InterruptedException e) {
-                timeThread.interrupt();
-                gameLogicThread.interrupt();
-                animationThread.interrupt();
-                redGhostThread.interrupt();
-                break;
             }
+        } catch (InterruptedException e) {
+            timeThread.interrupt();
+            gameLogicThread.interrupt();
+            redGhostThread.interrupt();
+            animationThread.interrupt();
         }
+
 
     }
 

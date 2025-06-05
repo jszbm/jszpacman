@@ -25,7 +25,7 @@ public class ScoreMap implements Serializable {
 
         HashMap<String, Integer> sortedMap = new LinkedHashMap<>();
 
-        for(Map.Entry<String, Integer> entry : entries){
+        for (Map.Entry<String, Integer> entry : entries) {
             sortedMap.put(entry.getKey(), entry.getValue());
         }
 

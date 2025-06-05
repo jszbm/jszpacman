@@ -1,5 +1,6 @@
 package thread;
 
+
 import frame.GameFrame;
 
 import javax.swing.*;
@@ -7,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 public class AnimationThread extends Thread {
 
-    GameFrame gameFrame;
+    private final GameFrame gameFrame;
 
     public AnimationThread(GameFrame gameFrame) {
         this.gameFrame = gameFrame;
@@ -17,14 +18,17 @@ public class AnimationThread extends Thread {
     public void run() {
         while (true) {
             try {
-                TimeUnit.MILLISECONDS.sleep(100);
                 SwingUtilities.invokeLater(() -> {
-                    //gameFrame.animatePlayer();
+                    gameFrame.animateEntities();
                     gameFrame.updateUi();
                     gameFrame.repaint();
                 });
+
+                TimeUnit.MILLISECONDS.sleep(66);
+
             } catch (InterruptedException e) {
-                break;
+                interrupt();
+                return;
             }
         }
     }

@@ -2,7 +2,9 @@ package service;
 
 import model.cell.Cell;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Stack;
 
 public class MazeService {
 
@@ -80,8 +82,8 @@ public class MazeService {
             Arrays.fill(maze[i], 3);
         }
 
-        for (int i = 0; i < maze.length; i++){
-            if(i == 0 || i == rows - 1){
+        for (int i = 0; i < maze.length; i++) {
+            if (i == 0 || i == rows - 1) {
                 Arrays.fill(maze[i], 1);
             }
             maze[i][0] = 1;

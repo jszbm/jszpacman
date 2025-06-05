@@ -11,22 +11,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class GhostThread extends Thread {
+public class RedGhostThread extends Thread {
 
     Entity entity;
     JTable mazeTable;
 
-    public GhostThread(Entity entity, JTable mazeTable) {
+    public RedGhostThread(Entity entity, JTable mazeTable) {
         this.entity = entity;
         this.mazeTable = mazeTable;
+
     }
 
     @Override
     public void run() {
         while (true) {
             try {
-                TimeUnit.MILLISECONDS.sleep(100);
-
                 Direction direction = entity.getDirection();
 
                 int column = entity.getColumn();
@@ -43,6 +42,7 @@ public class GhostThread extends Thread {
                     case LEFT -> leftNeighbour;
                     case DOWN -> downNeighbour;
                     case RIGHT -> rightNeighbour;
+                    default -> null;
                 };
 
                 List<Direction> possibleDirections = new ArrayList<>();
@@ -70,8 +70,11 @@ public class GhostThread extends Thread {
                     entity.setDirection(getReverse(direction));
                 }
 
+                TimeUnit.MILLISECONDS.sleep(100);
+
             } catch (InterruptedException e) {
-                break;
+                interrupt();
+                return;
             }
         }
     }
@@ -82,8 +85,8 @@ public class GhostThread extends Thread {
             case DOWN -> Direction.UP;
             case LEFT -> Direction.RIGHT;
             case RIGHT -> Direction.LEFT;
+            case IDLE -> Direction.IDLE;
         };
     }
-
 
 }

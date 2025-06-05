@@ -38,6 +38,7 @@ public class PacMan extends Entity implements KeyListener {
             System.err.println("Could not load PacMan sprite");
         }
 
+        direction = Direction.IDLE;
         texture = textureIdle;
         this.lives = 1;
     }
@@ -45,26 +46,17 @@ public class PacMan extends Entity implements KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
-            case KeyEvent.VK_UP -> {
-                direction = Direction.UP;
-                nextTexture();
+            case KeyEvent.VK_UP -> direction = Direction.UP;
 
-            }
 
-            case KeyEvent.VK_DOWN -> {
-                direction = Direction.DOWN;
-                nextTexture();
-            }
+            case KeyEvent.VK_DOWN -> direction = Direction.DOWN;
 
-            case KeyEvent.VK_LEFT -> {
-                direction = Direction.LEFT;
-                nextTexture();
-            }
 
-            case KeyEvent.VK_RIGHT -> {
-                direction = Direction.RIGHT;
-                nextTexture();
-            }
+            case KeyEvent.VK_LEFT -> direction = Direction.LEFT;
+
+
+            case KeyEvent.VK_RIGHT -> direction = Direction.RIGHT;
+
         }
     }
 
@@ -79,11 +71,12 @@ public class PacMan extends Entity implements KeyListener {
     }
 
     public void nextTexture() {
-        switch (direction){
+        switch (direction) {
             case UP -> texture = (texture == textureUp[0]) ? textureUp[1] : textureUp[0];
             case LEFT -> texture = (texture == textureLeft[0]) ? textureLeft[1] : textureLeft[0];
             case DOWN -> texture = (texture == textureDown[0]) ? textureDown[1] : textureDown[0];
             case RIGHT -> texture = (texture == textureRight[0]) ? textureRight[1] : textureRight[0];
+            case IDLE -> texture = textureIdle;
         }
     }
 

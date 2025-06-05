@@ -17,12 +17,15 @@ public class ShortcutThread extends Thread {
     public void run() {
         while (true) {
             try {
-                TimeUnit.MILLISECONDS.sleep(100);
                 SwingUtilities.invokeLater(() -> {
                     frame.processQuitShortcut();
                 });
+
+                TimeUnit.MILLISECONDS.sleep(100);
+
             } catch (InterruptedException e) {
-                break;
+                interrupt();
+                return;
             }
         }
 

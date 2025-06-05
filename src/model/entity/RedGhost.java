@@ -36,7 +36,7 @@ public class RedGhost extends Entity {
     }
 
     public void nextTexture() {
-        switch (direction){
+        switch (direction) {
             case UP -> texture = (texture == textureUp[0]) ? textureUp[1] : textureUp[0];
             case LEFT -> texture = (texture == textureLeft[0]) ? textureLeft[1] : textureLeft[0];
             case DOWN -> texture = (texture == textureDown[0]) ? textureDown[1] : textureDown[0];

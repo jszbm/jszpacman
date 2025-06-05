@@ -5,6 +5,7 @@ import controller.ScoreMapController;
 import model.PacManTableCellRenderer;
 import model.PacManTableModel;
 import model.cell.*;
+import model.entity.Direction;
 import model.entity.Entity;
 import model.entity.PacMan;
 import model.entity.RedGhost;
@@ -13,9 +14,12 @@ import thread.GameThread;
 import javax.swing.*;
 import javax.swing.table.TableColumn;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
-public class GameFrame extends CustomFrame implements WindowListener, KeyListener {
+public class GameFrame extends CustomFrame implements KeyListener {
     static final ScoreMapController scoreMapController = new ScoreMapController();
     static final MazeController mazeController = new MazeController();
 
@@ -23,6 +27,8 @@ public class GameFrame extends CustomFrame implements WindowListener, KeyListene
     RedGhost redGhost;
 
     JTable mazeTable = new JTable();
+
+    PacManTableModel mazeTableModel;
 
     JPanel mazePanel = new JPanel();
     JLabel scoreLabel = new JLabel();
@@ -53,7 +59,6 @@ public class GameFrame extends CustomFrame implements WindowListener, KeyListene
         setResizable(true);
         getContentPane().setBackground(Color.BLACK);
         setVisible(true);
-        addWindowListener(this);
         addKeyListener(this);
         addComponentListener(new ComponentAdapter() {
             @Override
@@ -62,7 +67,7 @@ public class GameFrame extends CustomFrame implements WindowListener, KeyListene
             }
         });
 
-        gameThread = new GameThread(this);
+        this.gameThread = new GameThread(this);
         gameThread.start();
     }
 
@@ -74,34 +79,6 @@ public class GameFrame extends CustomFrame implements WindowListener, KeyListene
         this.dispose();
     }
 
-    public void addText() {
-        gbc.insets = new Insets(0, width / factor, width / factor, width / factor);
-        gbc.gridwidth = 1;
-        gbc.gridy = 1;
-        gbc.fill = GridBagConstraints.NONE;
-
-        scoreLabel.setText("SCORE: 0000");
-        scoreLabel.setForeground(Color.WHITE);
-        scoreLabel.setFont(defaultFont);
-        gbc.gridx = 0;
-        gbc.anchor = GridBagConstraints.WEST;
-        add(scoreLabel, gbc);
-
-        timeLabel.setText("TIME: 00:00");
-        timeLabel.setForeground(Color.WHITE);
-        timeLabel.setFont(defaultFont);
-        gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.CENTER;
-        add(timeLabel, gbc);
-
-        livesLabel.setText("LIVES: " + player.getLives() + "   ");
-        livesLabel.setForeground(Color.WHITE);
-        livesLabel.setFont(defaultFont);
-        gbc.gridx = 2;
-        gbc.anchor = GridBagConstraints.EAST;
-        add(livesLabel, gbc);
-    }
-
     public void addMaze() {
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weighty = 1;
@@ -111,8 +88,9 @@ public class GameFrame extends CustomFrame implements WindowListener, KeyListene
         gbc.gridwidth = 3;
         gbc.anchor = GridBagConstraints.CENTER;
 
-        //mazeTable = new JTable(mazeController.getDefaultMazeModel());
-        mazeTable = new JTable(mazeController.generateMazeModel(rows, columns));
+        mazeTable = new JTable(mazeController.getDefaultMazeModel());
+        //mazeTable = new JTable(mazeController.generateMazeModel(rows, columns));
+        mazeTableModel = (PacManTableModel) mazeTable.getModel();
         for (int i = 0; i < mazeTable.getColumnCount(); i++) {
             TableColumn col = mazeTable.getColumnModel().getColumn(i);
             col.setMinWidth(0);
@@ -157,6 +135,39 @@ public class GameFrame extends CustomFrame implements WindowListener, KeyListene
 
     }
 
+    public void addText() {
+        gbc.insets = new Insets(0, width / factor, width / factor, width / factor);
+        gbc.gridwidth = 1;
+        gbc.gridy = 1;
+        gbc.fill = GridBagConstraints.NONE;
+
+        scoreLabel.setText("SCORE: 0000");
+        scoreLabel.setForeground(Color.WHITE);
+        scoreLabel.setFont(defaultFont);
+        gbc.gridx = 0;
+        gbc.anchor = GridBagConstraints.WEST;
+        add(scoreLabel, gbc);
+
+        timeLabel.setText("TIME: 00:00");
+        timeLabel.setForeground(Color.WHITE);
+        timeLabel.setFont(defaultFont);
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.CENTER;
+        add(timeLabel, gbc);
+
+        livesLabel.setText("LIVES: " + player.getLives() + "   ");
+        livesLabel.setForeground(Color.WHITE);
+        livesLabel.setFont(defaultFont);
+        gbc.gridx = 2;
+        gbc.anchor = GridBagConstraints.EAST;
+        add(livesLabel, gbc);
+    }
+
+    public void animateEntities() {
+        player.nextTexture();
+        redGhost.nextTexture();
+    }
+
     public void updateUi() {
         scoreLabel.setText("SCORE: " + String.format("%04d", score));
         timeLabel.setText("TIME: " + gameThread.getTimeThread().getStringTime());
@@ -167,9 +178,9 @@ public class GameFrame extends CustomFrame implements WindowListener, KeyListene
     private void resizeContent(Dimension dimension) {
         int width = getWidth();
         int height = getHeight();
-        int fontSize = Math.min(width, height)/factor;
+        int fontSize = Math.min(width, height) / factor;
 
-        Font newFont = defaultFont.deriveFont((float)fontSize);
+        Font newFont = defaultFont.deriveFont((float) fontSize);
         scoreLabel.setFont(newFont);
         timeLabel.setFont(newFont);
         livesLabel.setFont(newFont);
@@ -183,8 +194,10 @@ public class GameFrame extends CustomFrame implements WindowListener, KeyListene
         mazeTable.setPreferredSize(new Dimension(cols * cellSize, rows * cellSize));
     }
 
-    public void executeGameLogic() {
-        checkMaze((PacManTableModel) mazeTable.getModel());
+    public synchronized void executeGameLogic() {
+        if (mazeTableModel.getDotCount() == 0) {
+            gameOver();
+        }
         movePlayer();
         moveRedGhost();
     }
@@ -220,7 +233,7 @@ public class GameFrame extends CustomFrame implements WindowListener, KeyListene
                 processEntity(redGhost, desiredRow, desiredColumn);
                 break;
 
-            case null:
+            case IDLE:
                 break;
 
         }
@@ -258,53 +271,52 @@ public class GameFrame extends CustomFrame implements WindowListener, KeyListene
                 processPlayer(mazeTable, desiredRow, desiredColumn);
                 break;
 
-            case null:
-                desiredRow = 0;
-                desiredColumn = 0;
-                processPlayer(mazeTable, desiredRow, desiredColumn);
+            case IDLE:
+                if (player.getLives() == 0) {
+                    gameOver();
+                }
                 break;
 
         }
     }
 
-    public void processEntity(Entity entity, int desiredRow, int desiredColumn) {
+    public synchronized void processEntity(Entity entity, int desiredRow, int desiredColumn) {
         try {
             Cell desiredCell = (Cell) mazeTable.getValueAt(desiredRow, desiredColumn);
+            Class<?> desiredCellClass = desiredCell.getClass();
 
-            if (desiredCell.getClass() == PacMan.class) {
+            if (desiredCellClass == PacMan.class) {
                 player.subtractLives();
             }
 
-            if (desiredCell.getClass() != Wall.class && desiredCell.getClass() != Tunnel.class) {
+            if (desiredCellClass != Wall.class && desiredCellClass != Tunnel.class) {
                 entity.getCellQueue().add(desiredCell);
                 mazeTable.setValueAt(entity, desiredRow, desiredColumn);
                 mazeTable.setValueAt(entity.getCellQueue().poll(), entity.getRow(), entity.getColumn());
                 entity.setRow(desiredRow);
                 entity.setColumn(desiredColumn);
-                entity.nextTexture();
             }
         } catch (ArrayIndexOutOfBoundsException _) {
         }
     }
 
-    public void processPlayer(JTable maze, int desiredRow, int desiredColumn) {
+    public synchronized void processPlayer(JTable maze, int desiredRow, int desiredColumn) {
         try {
-            var desiredCell = maze.getValueAt(desiredRow, desiredColumn).getClass();
-            PacManTableModel model = (PacManTableModel) mazeTable.getModel();
+            var desiredCellClass = maze.getValueAt(desiredRow, desiredColumn).getClass();
 
-            if (desiredCell == RedGhost.class && player.getLives() > 0) {
+            if (desiredCellClass == RedGhost.class && player.getLives() > 0) {
                 player.subtractLives();
             } else if (player.getLives() == 0) {
                 gameOver();
             }
 
-            if (desiredCell != Wall.class && desiredCell != Gate.class) {
-                if (desiredCell == Dot.class) {
-                    model.deleteDot();
+            if (desiredCellClass != Wall.class && desiredCellClass != Gate.class) {
+                if (desiredCellClass == Dot.class) {
+                    mazeTableModel.deleteDot();
                     score += 10;
                 }
-                if (desiredCell == PowerDot.class) {
-                    model.deleteDot();
+                if (desiredCellClass == PowerDot.class) {
+                    mazeTableModel.deleteDot();
                     score += 100;
                 }
 
@@ -312,15 +324,10 @@ public class GameFrame extends CustomFrame implements WindowListener, KeyListene
                 maze.setValueAt(new Cell(), player.getRow(), player.getColumn());
                 player.setRow(desiredRow);
                 player.setColumn(desiredColumn);
-                player.nextTexture();
+            } else {
+                player.setDirection(Direction.IDLE);
             }
         } catch (ArrayIndexOutOfBoundsException _) {
-        }
-    }
-
-    public void checkMaze(PacManTableModel model) {
-        if (model.getDotCount() == 0) {
-            gameOver();
         }
     }
 
@@ -363,38 +370,5 @@ public class GameFrame extends CustomFrame implements WindowListener, KeyListene
         return redGhost;
     }
 
-    @Override
-    public void windowOpened(WindowEvent e) {
 
-    }
-
-    @Override
-    public void windowClosing(WindowEvent e) {
-        gameOver();
-    }
-
-    @Override
-    public void windowClosed(WindowEvent e) {
-
-    }
-
-    @Override
-    public void windowIconified(WindowEvent e) {
-
-    }
-
-    @Override
-    public void windowDeiconified(WindowEvent e) {
-
-    }
-
-    @Override
-    public void windowActivated(WindowEvent e) {
-
-    }
-
-    @Override
-    public void windowDeactivated(WindowEvent e) {
-
-    }
 }

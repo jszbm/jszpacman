@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 public class GameLogicThread extends Thread {
 
-    GameFrame gameFrame;
+    private final GameFrame gameFrame;
 
     public GameLogicThread(GameFrame gameFrame) {
         this.gameFrame = gameFrame;
@@ -17,12 +17,13 @@ public class GameLogicThread extends Thread {
     public void run() {
         while (true) {
             try {
+                SwingUtilities.invokeLater(() -> gameFrame.executeGameLogic());
+
                 TimeUnit.MILLISECONDS.sleep(100);
-                SwingUtilities.invokeLater(() -> {
-                    gameFrame.executeGameLogic();
-                });
+
             } catch (InterruptedException e) {
-                break;
+                interrupt();
+                return;
             }
         }
 
