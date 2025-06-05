@@ -1,18 +1,19 @@
 package frame;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 public class MainMenuFrame extends CustomFrame implements ActionListener {
-    //Visual objects
-    JPanel menuPanel = new JPanel(new GridBagLayout());
     JLabel menuLogoLabel = new JLabel();
-    ImageIcon menuLogo = new ImageIcon("res/gui/pacman-logo.png");
+    BufferedImage menuLogo;
+    int logoWidth;
+    int logoHeight;
 
-    //Interactive objects
     JButton playButton = new JButton();
     JButton exitButton = new JButton();
     JButton scoresButton = new JButton();
@@ -20,11 +21,10 @@ public class MainMenuFrame extends CustomFrame implements ActionListener {
     public MainMenuFrame() {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.addKeyListener(this);
-        setLayout(new BorderLayout());
+        setLayout(new GridBagLayout());
 
         addMenuLogoLabel();
         addButtons();
-        addMenuPanel();
 
         pack();
 
@@ -33,30 +33,30 @@ public class MainMenuFrame extends CustomFrame implements ActionListener {
         setResizable(true);
         setVisible(true);
         getContentPane().setBackground(Color.BLACK);
-        add(menuPanel, BorderLayout.CENTER);
-    }
-
-
-    private void addMenuPanel() {
-        menuPanel.setOpaque(true);
-        menuPanel.setBackground(Color.BLACK);
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                resizeContent();
+            }
+        });
     }
 
     private void addMenuLogoLabel() {
-        Image gameLogoScaled = menuLogo.getImage().getScaledInstance(
-                (int) (menuLogo.getIconWidth() * 0.5),
-                (int) (menuLogo.getIconHeight() * 0.5),
-                Image.SCALE_FAST
-        );
-
-        menuLogoLabel.setIcon(new ImageIcon(gameLogoScaled));
+        try {
+            menuLogo = ImageIO.read(new File("res/gui/logo.png"));
+        } catch (IOException e) {
+            System.err.println("Could not read the logo image");
+        }
+        logoWidth = menuLogo.getWidth();
+        logoHeight = menuLogo.getHeight();
+        menuLogoLabel.setIcon(new ImageIcon(menuLogo.getScaledInstance(logoWidth / 2, logoHeight / 2, Image.SCALE_FAST)));
         menuLogoLabel.setVerticalAlignment(JLabel.CENTER);
         menuLogoLabel.setHorizontalAlignment(JLabel.CENTER);
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 0.5;
         gbc.weighty = 0.5;
-        menuPanel.add(menuLogoLabel, gbc);
+        add(menuLogoLabel, gbc);
     }
 
     private void addButtons() {
@@ -75,10 +75,10 @@ public class MainMenuFrame extends CustomFrame implements ActionListener {
         playButton.setFocusable(false);
         playButton.setFont(menuFont);
         playButton.setBorder(buttonBorder);
-        playButton.setMargin(new Insets(10, 20, 10, 20));
+        playButton.setMargin(new Insets(20, 20, 20, 20));
 
         gbc.gridy = 1;
-        menuPanel.add(playButton, gbc);
+        add(playButton, gbc);
 
         //"SCORES"
         scoresButton.setPreferredSize(new Dimension(width / 3, 100));
@@ -93,7 +93,7 @@ public class MainMenuFrame extends CustomFrame implements ActionListener {
         scoresButton.setMargin(new Insets(10, 20, 10, 20));
 
         gbc.gridy = 2;
-        menuPanel.add(scoresButton, gbc);
+        add(scoresButton, gbc);
 
         //"EXIT"
         exitButton.setPreferredSize(new Dimension(width / 3, 100));
@@ -108,8 +108,19 @@ public class MainMenuFrame extends CustomFrame implements ActionListener {
         exitButton.setMargin(new Insets(10, 20, 10, 20));
 
         gbc.gridy = 3;
-        menuPanel.add(exitButton, gbc);
+        add(exitButton, gbc);
 
+    }
+
+    private void resizeContent() {
+        int currentWidth = getWidth();
+        int currentHeight = getHeight();
+        int fontSize = Math.min(currentWidth, currentHeight) / factor * 2;
+
+        Font newFont = defaultFont.deriveFont((float) fontSize);
+        playButton.setFont(newFont);
+        scoresButton.setFont(newFont);
+        exitButton.setFont(newFont);
     }
 
     @Override
@@ -141,7 +152,47 @@ public class MainMenuFrame extends CustomFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == playButton) {
-            new GameFrame();
+            JTextField rowsField = new JTextField(3);
+            JTextField columnsField = new JTextField(3);
+            GridBagConstraints promptGbc = new GridBagConstraints();
+
+            JPanel panel = new JPanel(new GridBagLayout());
+
+            promptGbc.gridx = 0;
+            promptGbc.gridy = 0;
+            promptGbc.gridwidth = 4;
+            promptGbc.insets = new Insets(10, 0, 10, 10);
+            promptGbc.fill = GridBagConstraints.BOTH;
+            panel.add(new JLabel("Enter maze dimensions: "), promptGbc);
+            promptGbc.insets = new Insets(0, 0, 10, 10);
+            promptGbc.gridy = 1;
+            promptGbc.gridwidth = 1;
+            panel.add(new JLabel("rows"), promptGbc);
+            promptGbc.gridx = 1;
+            panel.add(rowsField, promptGbc);
+            promptGbc.gridx = 2;
+            panel.add(new JLabel("columns"), promptGbc);
+            promptGbc.gridx = 3;
+            panel.add(columnsField, promptGbc);
+
+            int optionPane = JOptionPane.showConfirmDialog(null,
+                    panel,
+                    "Maze dimensions",
+                    JOptionPane.OK_CANCEL_OPTION);
+            if (optionPane == JOptionPane.OK_OPTION) {
+                int rows = Integer.parseInt(rowsField.getText());
+                int columns = Integer.parseInt(columnsField.getText());
+
+                if (rows < 10 || columns < 10) {
+                    JOptionPane.showMessageDialog(null, "The maze can not be smaller than 10 x 10");
+                } else if (rows > 100 || columns > 100) {
+                    JOptionPane.showMessageDialog(null, "The maze can not be bigger than 100 x 100");
+                } else {
+                    new GameFrame(rows, columns);
+                }
+            }
+
+
         }
 
         if (e.getSource() == scoresButton) {

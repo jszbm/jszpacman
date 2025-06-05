@@ -4,28 +4,21 @@ import controller.ScoreMapController;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 
 
-public class ScoreFrame extends CustomFrame implements ActionListener {
-    //Score system objects
+public class ScoreFrame extends CustomFrame implements ActionListener, KeyListener {
     static ScoreMapController scoreMapController = new ScoreMapController();
-    //Visual objects
-    JPanel scoreMenuPanel = new JPanel(new GridBagLayout());
-    //Interactive objects
+
     JButton closeButton = new JButton();
 
     public ScoreFrame() {
-        this.addKeyListener(this);
-        setLayout(new BorderLayout());
+        setLayout(new GridBagLayout());
         gbc.fill = GridBagConstraints.BOTH;
         gbc.anchor = GridBagConstraints.CENTER;
 
         addButtons();
         addScorePane();
-        addScoreMenuPanel();
 
         pack();
 
@@ -34,24 +27,25 @@ public class ScoreFrame extends CustomFrame implements ActionListener {
         setResizable(true);
         getContentPane().setBackground(Color.BLACK);
         setLocationRelativeTo(null);
+        addKeyListener(this);
         requestFocus();
-    }
-
-    private void addScoreMenuPanel() {
-        scoreMenuPanel.setOpaque(true);
-        scoreMenuPanel.setBackground(Color.BLACK);
-        add(scoreMenuPanel);
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                resizeContent();
+            }
+        });
     }
 
     public void addScorePane() {
         DefaultListModel<String> scoreListModel = new DefaultListModel<>();
         for (var scoreEntry : scoreMapController.getScoreMap().getMap().entrySet()) {
-            String formattedScore = scoreEntry.getKey() + ": " + scoreEntry.getValue();
+            String formattedScore = scoreEntry.getValue() + "    " + scoreEntry.getKey();
             scoreListModel.add(0, formattedScore);
         }
 
         JList<String> scoreList = new JList<>(scoreListModel);
-        scoreList.setFont(scoreListFont);
+        scoreList.setFont(defaultFont);
         scoreList.setBackground(Color.BLACK);
         scoreList.setForeground(Color.WHITE);
         scoreList.setFixedCellHeight(40);
@@ -65,7 +59,7 @@ public class ScoreFrame extends CustomFrame implements ActionListener {
         gbc.gridy = 0;
         gbc.weightx = 1;
         gbc.weighty = 1;
-        scoreMenuPanel.add(scrollPane, gbc);
+        add(scrollPane, gbc);
     }
 
     private void addButtons() {
@@ -81,7 +75,15 @@ public class ScoreFrame extends CustomFrame implements ActionListener {
         gbc.gridy = 1;
         gbc.weightx = 0.1;
         gbc.weighty = 0.1;
-        scoreMenuPanel.add(closeButton, gbc);
+        add(closeButton, gbc);
+    }
+
+    void resizeContent() {
+        int width = getWidth();
+        int height = getHeight();
+        int fontSize = Math.min(width, height) / factor * 2;
+        Font newFont = defaultFont.deriveFont((float) fontSize);
+        closeButton.setFont(newFont);
     }
 
     @Override
@@ -120,7 +122,7 @@ public class ScoreFrame extends CustomFrame implements ActionListener {
         if (e.getKeyCode() == KeyEvent.VK_BACK_QUOTE) {
             String name = JOptionPane.showInputDialog("Name: ");
             int score = Integer.parseInt(JOptionPane.showInputDialog("Score: "));
-            System.out.println("Debug score");
+            System.err.println("Debug score");
             scoreMapController.debugScore(name, score);
         }
     }
