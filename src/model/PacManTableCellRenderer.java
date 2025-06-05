@@ -16,7 +16,7 @@ public class PacManTableCellRenderer extends JLabel implements TableCellRenderer
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             Cell cell = getCell(value);
-            setIcon(new ImageIcon(cell.getTexture().getScaledInstance(table.getRowHeight(), table.getColumnModel().getColumn(0).getWidth(), Image.SCALE_SMOOTH)));
+            setIcon(new ImageIcon(cell.getTexture().getScaledInstance(table.getRowHeight(), table.getRowHeight(), Image.SCALE_SMOOTH)));
             return this;
     }
 

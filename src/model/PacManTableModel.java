@@ -1,6 +1,7 @@
 package model;
 
 import model.cell.*;
+import model.entity.PacMan;
 import model.entity.RedGhost;
 
 import javax.swing.table.AbstractTableModel;
@@ -8,12 +9,10 @@ import javax.swing.table.AbstractTableModel;
 public class PacManTableModel extends AbstractTableModel {
 
     private final Cell[][] items;
-    private final int[] columns;
     private int dotCount;
 
     public PacManTableModel(int[][] maze) {
         this.items = convert(maze);
-        this.columns = new int[maze[0].length];
     }
 
     public Cell[][] convert(int[][] maze) {
@@ -45,6 +44,11 @@ public class PacManTableModel extends AbstractTableModel {
                         break;
                     case 6:
                         convertedMaze[row][i] = new RedGhost();
+                        System.out.println("Red ghost: " + row + " " + i);
+                        break;
+                    case 7:
+                        convertedMaze[row][i] = new PacMan();
+                        System.out.println("Pac Man: " + row + " " + i);
                         break;
                     default:
                         convertedMaze[row][i] = new Cell();
@@ -63,14 +67,14 @@ public class PacManTableModel extends AbstractTableModel {
     }
 
     @Override
-    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        items[rowIndex][columnIndex] = (Cell) aValue;
-        super.setValueAt(aValue, rowIndex, columnIndex);
+    public int getColumnCount() {
+        return items[0].length;
     }
 
     @Override
-    public int getColumnCount() {
-        return columns.length;
+    public void setValueAt(Object value, int rowIndex, int columnIndex) {
+        items[rowIndex][columnIndex] = (Cell) value;
+        super.setValueAt(value, rowIndex, columnIndex);
     }
 
     @Override
