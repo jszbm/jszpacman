@@ -32,14 +32,13 @@ public class GameFrame extends CustomFrame implements KeyListener {
             PinkGhost.class,
             RedGhost.class,
             CyanGhost.class,
-            OrangeGhost.class,
-            PacMan.class
+            OrangeGhost.class
     );
-
-    int orangeTimer = 0;
 
     int time;
 
+    int orangeTimer = 0;
+    int axeTimer = 0;
     int appleTimer = 0;
     int ghostUpdateTime = 100;
 
@@ -137,7 +136,6 @@ public class GameFrame extends CustomFrame implements KeyListener {
             }
         }
 
-        outer:
         for (int i = 0; i < mazeTable.getRowCount(); i++) {
             for (int j = 0; j < mazeTable.getColumnCount(); j++) {
                 if (mazeTable.getValueAt(i, j).getClass() == RedGhost.class) {
@@ -203,7 +201,13 @@ public class GameFrame extends CustomFrame implements KeyListener {
     }
 
     public void animateEntities() {
-        player.nextTexture();
+
+        if (axeTimer == 0){
+            player.nextTexture();
+        } else {
+            player.nextWallbreakerTexture();
+        }
+
         if (appleTimer == 0) {
             redGhost.nextTexture();
             pinkGhost.nextTexture();
@@ -217,10 +221,13 @@ public class GameFrame extends CustomFrame implements KeyListener {
         }
     }
 
-    public void setTime(int time) {
+    public synchronized void setTime(int time) {
         this.time = time;
         if (orangeTimer != 0) {
             orangeTimer--;
+        }
+        if (axeTimer != 0) {
+            axeTimer--;
         }
         if (appleTimer != 0) {
             appleTimer--;
@@ -327,7 +334,7 @@ public class GameFrame extends CustomFrame implements KeyListener {
 
     }
 
-    public void movePlayer() {
+    public synchronized void movePlayer() {
         int desiredRow;
         int desiredColumn;
         int row = player.getRow();
@@ -370,7 +377,10 @@ public class GameFrame extends CustomFrame implements KeyListener {
             Class<?> desiredCellClass = desiredCell.getClass();
 
             if (desiredCellClass == PacMan.class) {
-                player.subtractLives();
+                if (orangeTimer <= 0 && axeTimer <= 0) {
+                    player.subtractLives();
+                }
+                return;
             }
 
             if (!collisions.contains(desiredCellClass)) {
@@ -381,11 +391,17 @@ public class GameFrame extends CustomFrame implements KeyListener {
                     if (leaveBehind.getClass() == Dot.class) {
                         mazeTableModel.deleteDot();
                     }
-                    if (Math.random() > 0.5) {
+                    double random = Math.random();
+
+                    if (random < 0.3) {
                         leaveBehind = new Orange();
-                    } else {
+                    } else if (random < 0.6) {
                         leaveBehind = new Apple();
+                    } else {
+                        leaveBehind = new Axe();
                     }
+
+
                 }
 
                 entity.getCellQueue().add(desiredCell);
@@ -393,8 +409,6 @@ public class GameFrame extends CustomFrame implements KeyListener {
                 mazeTable.setValueAt(leaveBehind, entity.getRow(), entity.getColumn());
                 entity.setRow(desiredRow);
                 entity.setColumn(desiredColumn);
-
-
             }
         } catch (ArrayIndexOutOfBoundsException _) {
         }
@@ -414,14 +428,19 @@ public class GameFrame extends CustomFrame implements KeyListener {
                 appleTimer = 50;
             }
 
+            if (desiredCellClass == Axe.class) {
+                score += 100;
+                axeTimer = 25;
+            }
+
             if (desiredCellClass == RedGhost.class ||
                     desiredCellClass == PinkGhost.class ||
                     desiredCellClass == CyanGhost.class ||
-                    desiredCellClass == Orange.class) {
-                if (orangeTimer == 0) {
-                    player.subtractLives();
-                } else {
+                    desiredCellClass == OrangeGhost.class) {
+                if (orangeTimer > 0 || axeTimer > 0) {
                     score += 1000;
+                } else {
+                    player.subtractLives();
                 }
             }
 
@@ -439,9 +458,16 @@ public class GameFrame extends CustomFrame implements KeyListener {
                 maze.setValueAt(new Cell(), player.getRow(), player.getColumn());
                 player.setRow(desiredRow);
                 player.setColumn(desiredColumn);
+            } else if (desiredCellClass == Wall.class && axeTimer > 0) {
+                score += 50;
+                maze.setValueAt(player, desiredRow, desiredColumn);
+                maze.setValueAt(new Cell(), player.getRow(), player.getColumn());
+                player.setRow(desiredRow);
+                player.setColumn(desiredColumn);
             } else {
-                player.setDirection(Direction.IDLE);
+                    player.setDirection(Direction.IDLE);
             }
+
         } catch (ArrayIndexOutOfBoundsException _) {
         }
     }

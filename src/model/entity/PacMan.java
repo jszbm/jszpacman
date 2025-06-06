@@ -13,6 +13,8 @@ public class PacMan extends Entity implements KeyListener {
 
     BufferedImage textureIdle;
 
+    BufferedImage[] textureWallbreaker = new BufferedImage[2];
+
     public PacMan() {
         try {
             textureIdle = ImageIO.read(new File("res/pacman/idle.png"));
@@ -28,6 +30,9 @@ public class PacMan extends Entity implements KeyListener {
 
             textureDown[0] = ImageIO.read(new File("res/pacman/d-open.png"));
             textureDown[1] = ImageIO.read(new File("res/pacman/d-normal.png"));
+
+            textureWallbreaker[0] = ImageIO.read(new File("res/pacman/w-1.png"));
+            textureWallbreaker[1] = ImageIO.read(new File("res/pacman/w-2.png"));
 
         } catch (IOException e) {
             System.err.println("Could not load PacMan sprite");
@@ -73,6 +78,10 @@ public class PacMan extends Entity implements KeyListener {
             case RIGHT -> texture = (texture == textureRight[0]) ? textureRight[1] : textureRight[0];
             case IDLE -> texture = textureIdle;
         }
+    }
+
+    public void nextWallbreakerTexture() {
+        texture = (texture == textureWallbreaker[0]) ? textureWallbreaker[1] : textureWallbreaker[0];
     }
 
     public int getLives() {

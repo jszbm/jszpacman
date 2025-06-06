@@ -29,43 +29,48 @@ public class RedGhostThread extends Thread {
                 Direction direction = entity.getDirection();
                 int column = entity.getColumn();
                 int row = entity.getRow();
-
-                Class<?> leftNeighbour = mazeTable.getValueAt(row, column - 1).getClass();
-                Class<?> rightNeighbour = mazeTable.getValueAt(row, column + 1).getClass();
-                Class<?> upNeighbour = mazeTable.getValueAt(row - 1, column).getClass();
-                Class<?> downNeighbour = mazeTable.getValueAt(row + 1, column).getClass();
-
-                Class<?> forwardNeighbour;
-                forwardNeighbour = switch (direction) {
-                    case UP -> upNeighbour;
-                    case LEFT -> leftNeighbour;
-                    case DOWN -> downNeighbour;
-                    case RIGHT -> rightNeighbour;
-                    default -> null;
-                };
-
                 List<Direction> possibleDirections = new ArrayList<>();
+                Class<?> forwardNeighbour;
 
-                switch (direction) {
-                    case UP:
-                    case DOWN:
-                        if (leftNeighbour != Wall.class) possibleDirections.add(Direction.LEFT);
-                        if (rightNeighbour != Wall.class) possibleDirections.add(Direction.RIGHT);
-                        break;
-                    case LEFT:
-                    case RIGHT:
-                        if (upNeighbour != Wall.class) possibleDirections.add(Direction.UP);
-                        if (downNeighbour != Wall.class) possibleDirections.add(Direction.DOWN);
-                        break;
-                }
+                try {
+                    Class<?> leftNeighbour = mazeTable.getValueAt(row, column - 1).getClass();
+                    Class<?> rightNeighbour = mazeTable.getValueAt(row, column + 1).getClass();
+                    Class<?> upNeighbour = mazeTable.getValueAt(row - 1, column).getClass();
+                    Class<?> downNeighbour = mazeTable.getValueAt(row + 1, column).getClass();
 
-                if (!possibleDirections.isEmpty() && Math.random() > 0.4) {
-                    Collections.shuffle(possibleDirections);
-                    entity.setDirection(possibleDirections.getFirst());
-                    continue;
-                }
+                    forwardNeighbour = switch (direction) {
+                        case UP -> upNeighbour;
+                        case LEFT -> leftNeighbour;
+                        case DOWN -> downNeighbour;
+                        case RIGHT -> rightNeighbour;
+                        default -> null;
+                    };
 
-                if (forwardNeighbour == Wall.class || forwardNeighbour == Tunnel.class) {
+
+                    switch (direction) {
+                        case UP:
+                        case DOWN:
+                            if (leftNeighbour != Wall.class) possibleDirections.add(Direction.LEFT);
+                            if (rightNeighbour != Wall.class) possibleDirections.add(Direction.RIGHT);
+                            break;
+                        case LEFT:
+                        case RIGHT:
+                            if (upNeighbour != Wall.class) possibleDirections.add(Direction.UP);
+                            if (downNeighbour != Wall.class) possibleDirections.add(Direction.DOWN);
+                            break;
+                    }
+
+                    if (!possibleDirections.isEmpty() && Math.random() > 0.4) {
+                        Collections.shuffle(possibleDirections);
+                        entity.setDirection(possibleDirections.getFirst());
+                        continue;
+                    }
+
+                    if (forwardNeighbour == Wall.class || forwardNeighbour == Tunnel.class) {
+                        entity.setDirection(getReverse(direction));
+                    }
+
+                } catch (ArrayIndexOutOfBoundsException e) {
                     entity.setDirection(getReverse(direction));
                 }
 
