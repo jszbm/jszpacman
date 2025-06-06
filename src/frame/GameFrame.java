@@ -274,9 +274,10 @@ public class GameFrame extends CustomFrame implements KeyListener {
         int rows = mazeTable.getRowCount();
 
         int cellSize = Math.min(dimension.width / cols, dimension.height / rows);
+        int minSize = Math.max(1, cellSize);
 
-        mazeTable.setRowHeight(cellSize);
-        mazeTable.setPreferredSize(new Dimension(cols * cellSize, rows * cellSize));
+        mazeTable.setRowHeight(minSize);
+        mazeTable.setPreferredSize(new Dimension(cols * minSize, rows * minSize));
     }
 
     public void executeGameLogic() {
