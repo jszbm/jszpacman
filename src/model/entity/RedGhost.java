@@ -11,6 +11,7 @@ public class RedGhost extends Entity {
     BufferedImage[] textureLeft = new BufferedImage[2];
     BufferedImage[] textureUp = new BufferedImage[2];
     BufferedImage[] textureDown = new BufferedImage[2];
+    BufferedImage[] textureIdle = new BufferedImage[2];
 
     public RedGhost() {
         try {
@@ -27,6 +28,9 @@ public class RedGhost extends Entity {
             textureDown[0] = ImageIO.read(new File("res/ghosts/red/d-1.png"));
             textureDown[1] = ImageIO.read(new File("res/ghosts/red/d-2.png"));
 
+            textureIdle[0] = ImageIO.read(new File("res/ghosts/red/i-1.png"));
+            textureIdle[1] = ImageIO.read(new File("res/ghosts/red/i-2.png"));
+
         } catch (IOException e) {
             System.err.println("Could not load red ghost sprite");
         }
@@ -41,6 +45,7 @@ public class RedGhost extends Entity {
             case LEFT -> texture = (texture == textureLeft[0]) ? textureLeft[1] : textureLeft[0];
             case DOWN -> texture = (texture == textureDown[0]) ? textureDown[1] : textureDown[0];
             case RIGHT -> texture = (texture == textureRight[0]) ? textureRight[1] : textureRight[0];
+            case IDLE -> texture = (texture == textureIdle[0]) ? textureIdle[1] : textureIdle[0];
         }
     }
 

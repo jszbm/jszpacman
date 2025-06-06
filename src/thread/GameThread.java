@@ -18,7 +18,7 @@ public class GameThread extends Thread {
         gameLogicThread = new GameLogicThread(gameFrame);
         animationThread = new AnimationThread(gameFrame);
         redGhostThread = new RedGhostThread(gameFrame.getRedGhost(), gameFrame.getMazeTable());
-        timeThread = new TimeThread();
+        timeThread = new TimeThread(gameFrame);
     }
 
     @Override

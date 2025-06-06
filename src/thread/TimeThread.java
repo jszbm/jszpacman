@@ -1,17 +1,26 @@
 package thread;
 
+import frame.GameFrame;
+
 import java.util.concurrent.TimeUnit;
 
 public class TimeThread extends Thread {
 
+
+    GameFrame gameFrame;
     int time;
+
+    public TimeThread(GameFrame gameFrame) {
+        this.gameFrame = gameFrame;
+    }
 
     @Override
     public void run() {
         while (true) {
             try {
-                TimeUnit.SECONDS.sleep(1);
+                TimeUnit.MILLISECONDS.sleep(100);
                 time++;
+                gameFrame.setTime(time);
             } catch (InterruptedException e) {
                 interrupt();
                 return;
@@ -19,7 +28,8 @@ public class TimeThread extends Thread {
         }
     }
 
-    public String getStringTime() {
-        return String.format("%02d:%02d", time / 60, time);
+    public int getTime() {
+        return time;
     }
+
 }
