@@ -18,9 +18,13 @@ public class TimeThread extends Thread {
     public void run() {
         while (true) {
             try {
-                TimeUnit.MILLISECONDS.sleep(100);
-                time++;
-                gameFrame.setTime(time);
+                if (!gameFrame.isPaused()) {
+                    TimeUnit.MILLISECONDS.sleep(100);
+                    time++;
+                    gameFrame.setTime(time);
+                } else {
+                    TimeUnit.MILLISECONDS.sleep(100);
+                }
             } catch (InterruptedException e) {
                 interrupt();
                 return;

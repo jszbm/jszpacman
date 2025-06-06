@@ -21,6 +21,9 @@ public class GameFrame extends CustomFrame implements KeyListener {
     static final ScoreMapController scoreMapController = new ScoreMapController();
     static final MazeController mazeController = new MazeController();
 
+    boolean isTesting = false;
+    boolean isPaused = false;
+
     PacMan player;
     RedGhost redGhost;
     PinkGhost pinkGhost;
@@ -37,6 +40,7 @@ public class GameFrame extends CustomFrame implements KeyListener {
 
     int time;
 
+    int bellTimer = 0;
     int orangeTimer = 0;
     int axeTimer = 0;
     int appleTimer = 0;
@@ -58,9 +62,10 @@ public class GameFrame extends CustomFrame implements KeyListener {
 
     GameThread gameThread;
 
-    public GameFrame(int rows, int columns) {
+    public GameFrame(int rows, int columns, boolean isTesting) {
         this.rows = rows;
         this.columns = columns;
+        this.isTesting = isTesting;
 
         setLayout(new GridBagLayout());
 
@@ -104,8 +109,13 @@ public class GameFrame extends CustomFrame implements KeyListener {
         gbc.gridwidth = 3;
         gbc.anchor = GridBagConstraints.CENTER;
 
-        //mazeTable = new JTable(mazeController.getDefaultMazeModel());
-        mazeTable = new JTable(mazeController.generateMazeModel(rows, columns));
+
+        if (isTesting){
+            mazeTable = new JTable(mazeController.getDefaultMazeModel());
+        } else {
+            mazeTable = new JTable(mazeController.generateMazeModel(rows, columns));
+        }
+
         mazeTableModel = (PacManTableModel) mazeTable.getModel();
         for (int i = 0; i < mazeTable.getColumnCount(); i++) {
             TableColumn col = mazeTable.getColumnModel().getColumn(i);
@@ -202,7 +212,7 @@ public class GameFrame extends CustomFrame implements KeyListener {
 
     public void animateEntities() {
 
-        if (axeTimer == 0){
+        if (axeTimer == 0) {
             player.nextTexture();
         } else {
             player.nextWallbreakerTexture();
@@ -228,6 +238,9 @@ public class GameFrame extends CustomFrame implements KeyListener {
         }
         if (axeTimer != 0) {
             axeTimer--;
+        }
+        if (bellTimer != 0) {
+            bellTimer--;
         }
         if (appleTimer != 0) {
             appleTimer--;
@@ -299,35 +312,40 @@ public class GameFrame extends CustomFrame implements KeyListener {
         int column = entity.getColumn();
 
         if (orangeTimer == 0 || entity.getClass() == OrangeGhost.class) {
-            switch (entity.getDirection()) {
-                case UP:
-                    desiredRow = row - 1;
-                    desiredColumn = column;
-                    processEntity(entity, desiredRow, desiredColumn);
-                    break;
+            if (bellTimer == 0) {
+                switch (entity.getDirection()) {
+                    case UP:
+                        desiredRow = row - 1;
+                        desiredColumn = column;
+                        processEntity(entity, desiredRow, desiredColumn);
+                        break;
 
-                case DOWN:
-                    desiredRow = row + 1;
-                    desiredColumn = column;
-                    processEntity(entity, desiredRow, desiredColumn);
-                    break;
+                    case DOWN:
+                        desiredRow = row + 1;
+                        desiredColumn = column;
+                        processEntity(entity, desiredRow, desiredColumn);
+                        break;
 
-                case RIGHT:
-                    desiredRow = row;
-                    desiredColumn = column + 1;
-                    processEntity(entity, desiredRow, desiredColumn);
-                    break;
+                    case RIGHT:
+                        desiredRow = row;
+                        desiredColumn = column + 1;
+                        processEntity(entity, desiredRow, desiredColumn);
+                        break;
 
-                case LEFT:
-                    desiredRow = row;
-                    desiredColumn = column - 1;
-                    processEntity(entity, desiredRow, desiredColumn);
-                    break;
+                    case LEFT:
+                        desiredRow = row;
+                        desiredColumn = column - 1;
+                        processEntity(entity, desiredRow, desiredColumn);
+                        break;
 
-                default:
-                    break;
-
+                    default:
+                        break;
+                }
+            } else {
+                mazeTable.setValueAt(new Cell(), row, column);
             }
+
+
         } else {
             entity.setDirection(Direction.IDLE);
         }
@@ -393,12 +411,16 @@ public class GameFrame extends CustomFrame implements KeyListener {
                     }
                     double random = Math.random();
 
-                    if (random < 0.3) {
+                    if (random < 0.2) {
                         leaveBehind = new Orange();
-                    } else if (random < 0.6) {
+                    } else if (random < 0.4) {
                         leaveBehind = new Apple();
-                    } else {
+                    } else if (random < 0.6) {
                         leaveBehind = new Axe();
+                    } else if (random < 0.8) {
+                        leaveBehind = new Bell();
+                    } else {
+                        leaveBehind = new Key();
                     }
 
 
@@ -433,6 +455,69 @@ public class GameFrame extends CustomFrame implements KeyListener {
                 axeTimer = 25;
             }
 
+            if (desiredCellClass == Bell.class) {
+                score += 100;
+                bellTimer = 50;
+            }
+
+            if (desiredCellClass == Key.class){
+                maze.setValueAt(new Cell(), desiredRow, desiredColumn);
+
+                isPaused = true;
+
+                JTextField rowsField = new JTextField(3);
+                JTextField columnsField = new JTextField(3);
+                GridBagConstraints promptGbc = new GridBagConstraints();
+
+                JPanel panel = new JPanel(new GridBagLayout());
+
+                promptGbc.gridx = 0;
+                promptGbc.gridy = 0;
+                promptGbc.gridwidth = 4;
+                promptGbc.insets = new Insets(10, 0, 10, 10);
+                promptGbc.fill = GridBagConstraints.BOTH;
+                panel.add(new JLabel("Enter cell for teleport: "), promptGbc);
+                promptGbc.insets = new Insets(0, 0, 10, 10);
+                promptGbc.gridy = 1;
+                promptGbc.gridwidth = 1;
+                panel.add(new JLabel("row"), promptGbc);
+                promptGbc.gridx = 1;
+                panel.add(rowsField, promptGbc);
+                promptGbc.gridx = 2;
+                panel.add(new JLabel("column"), promptGbc);
+                promptGbc.gridx = 3;
+                panel.add(columnsField, promptGbc);
+
+                int optionPane = JOptionPane.showConfirmDialog(null,
+                        panel,
+                        "Teleport",
+                        JOptionPane.OK_CANCEL_OPTION);
+                if (optionPane == JOptionPane.OK_OPTION) {
+                    desiredRow = Integer.parseInt(rowsField.getText());
+                    desiredColumn = Integer.parseInt(columnsField.getText());
+
+                    if (desiredRow < 1 || desiredColumn < 1) {
+                        JOptionPane.showMessageDialog(null, "Can not teleport outside the maze");
+                        } else if (desiredRow > rows - 2 || desiredColumn > columns - 2) {
+                        JOptionPane.showMessageDialog(null, "Can not teleport outside the maze");
+                    } else {
+
+                        if (mazeTable.getValueAt(desiredRow, desiredColumn).getClass() == Dot.class || mazeTable.getValueAt(desiredRow, desiredColumn).getClass() == PowerDot.class) {
+                            mazeTableModel.deleteDot();
+                        }
+
+                        maze.setValueAt(player, desiredRow, desiredColumn);
+                        maze.setValueAt(new Cell(), player.getRow(), player.getColumn());
+                        player.setRow(desiredRow);
+                        player.setColumn(desiredColumn);
+                        isPaused = false;
+                    }
+                } else {
+                    isPaused = false;
+                }
+
+            }
+
             if (desiredCellClass == RedGhost.class ||
                     desiredCellClass == PinkGhost.class ||
                     desiredCellClass == CyanGhost.class ||
@@ -465,7 +550,7 @@ public class GameFrame extends CustomFrame implements KeyListener {
                 player.setRow(desiredRow);
                 player.setColumn(desiredColumn);
             } else {
-                    player.setDirection(Direction.IDLE);
+                player.setDirection(Direction.IDLE);
             }
 
         } catch (ArrayIndexOutOfBoundsException _) {
@@ -529,7 +614,7 @@ public class GameFrame extends CustomFrame implements KeyListener {
         return ghostUpdateTime;
     }
 
-    public Set<Class<?>> getCollisions() {
-        return collisions;
+    public boolean isPaused() {
+        return isPaused;
     }
 }

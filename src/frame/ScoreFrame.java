@@ -47,8 +47,9 @@ public class ScoreFrame extends CustomFrame implements ActionListener, KeyListen
         JList<String> scoreList = new JList<>(scoreListModel);
         scoreList.setFont(defaultFont);
         scoreList.setBackground(Color.BLACK);
-        scoreList.setForeground(Color.WHITE);
         scoreList.setFixedCellHeight(40);
+        scoreList.setFocusable(false);
+        scoreList.setForeground(Color.WHITE);
 
         JScrollPane scrollPane = new JScrollPane(scoreList);
         scrollPane.setOpaque(true);

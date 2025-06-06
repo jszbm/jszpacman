@@ -76,6 +76,14 @@ public class MainMenuFrame extends CustomFrame implements ActionListener {
         playButton.setFont(menuFont);
         playButton.setBorder(buttonBorder);
         playButton.setMargin(new Insets(20, 20, 20, 20));
+        playButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    new GameFrame(21, 21, true);
+                }
+            }
+        });
 
         gbc.gridy = 1;
         add(playButton, gbc);
@@ -188,7 +196,7 @@ public class MainMenuFrame extends CustomFrame implements ActionListener {
                 } else if (rows > 100 || columns > 100) {
                     JOptionPane.showMessageDialog(null, "The maze can not be bigger than 100 x 100");
                 } else {
-                    new GameFrame(rows, columns);
+                    new GameFrame(rows, columns, false);
                 }
             }
 

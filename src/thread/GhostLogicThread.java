@@ -19,8 +19,9 @@ public class GhostLogicThread extends Thread {
         while (true) {
             try {
                 updateTime = gameFrame.getGhostUpdateTime();
-
-                SwingUtilities.invokeLater(() -> gameFrame.executeGhostLogic());
+                if (!gameFrame.isPaused()) {
+                    SwingUtilities.invokeLater(() -> gameFrame.executeGhostLogic());
+                }
 
                 TimeUnit.MILLISECONDS.sleep(updateTime);
 

@@ -61,7 +61,26 @@ public class PacManTableModel extends AbstractTableModel {
                         convertedMaze[row][i] = new OrangeGhost();
                         System.out.println("Orange ghost: " + row + " " + i);
                         break;
-
+                   case 11:
+                        convertedMaze[row][i] = new Orange();
+                        System.out.println("Orange: " + row + " " + i);
+                        break;
+                   case 12:
+                        convertedMaze[row][i] = new Apple();
+                        System.out.println("Apple: " + row + " " + i);
+                        break;
+                   case 13:
+                        convertedMaze[row][i] = new Axe();
+                        System.out.println("Axe: " + row + " " + i);
+                        break;
+                   case 14:
+                        convertedMaze[row][i] = new Bell();
+                        System.out.println("Bell: " + row + " " + i);
+                        break;
+                   case 15:
+                        convertedMaze[row][i] = new Key();
+                        System.out.println("Key: " + row + " " + i);
+                        break;
                     default:
                         convertedMaze[row][i] = new Cell();
                 }

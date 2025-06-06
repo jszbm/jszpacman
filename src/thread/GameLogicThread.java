@@ -17,7 +17,9 @@ public class GameLogicThread extends Thread {
     public void run() {
         while (true) {
             try {
-                SwingUtilities.invokeLater(() -> gameFrame.executeGameLogic());
+                if (!gameFrame.isPaused()) {
+                    SwingUtilities.invokeLater(() -> gameFrame.executeGameLogic());
+                }
 
                 TimeUnit.MILLISECONDS.sleep(100);
 

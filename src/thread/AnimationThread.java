@@ -18,12 +18,11 @@ public class AnimationThread extends Thread {
     public void run() {
         while (true) {
             try {
-                SwingUtilities.invokeLater(() -> {
-                    gameFrame.animateEntities();
-                    gameFrame.updateUi();
-                    gameFrame.repaint();
-                });
-
+                    SwingUtilities.invokeLater(() -> {
+                        gameFrame.animateEntities();
+                        gameFrame.updateUi();
+                        gameFrame.repaint();
+                    });
                 TimeUnit.MILLISECONDS.sleep(66);
 
             } catch (InterruptedException e) {
