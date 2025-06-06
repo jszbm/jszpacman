@@ -252,7 +252,10 @@ public class GameFrame extends CustomFrame implements KeyListener {
 
     public synchronized void updateUi() {
         scoreLabel.setText("SCORE: " + String.format("%04d", score));
-        timeLabel.setText("TIME: " + String.format("%02d:%02d", time / 600, time / 10));
+        int totalSeconds = time / 10;
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
+        timeLabel.setText("TIME: " + String.format("%02d:%02d", minutes, seconds));
         livesLabel.setText("LIVES: " + player.getLives() + "   ");
     }
 
