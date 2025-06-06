@@ -4,22 +4,22 @@ import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 
-public class RedGhost extends Entity {
+public class OrangeGhost extends Entity{
 
-    public RedGhost() {
+    public OrangeGhost() {
         try {
 
-            textureRight[0] = ImageIO.read(new File("res/ghosts/red/r-1.png"));
-            textureRight[1] = ImageIO.read(new File("res/ghosts/red/r-2.png"));
+            textureRight[0] = ImageIO.read(new File("res/ghosts/orange/r-1.png"));
+            textureRight[1] = ImageIO.read(new File("res/ghosts/orange/r-2.png"));
 
-            textureUp[0] = ImageIO.read(new File("res/ghosts/red/u-1.png"));
-            textureUp[1] = ImageIO.read(new File("res/ghosts/red/u-2.png"));
+            textureUp[0] = ImageIO.read(new File("res/ghosts/orange/u-1.png"));
+            textureUp[1] = ImageIO.read(new File("res/ghosts/orange/u-2.png"));
 
-            textureLeft[0] = ImageIO.read(new File("res/ghosts/red/l-2.png"));
-            textureLeft[1] = ImageIO.read(new File("res/ghosts/red/l-1.png"));
+            textureLeft[0] = ImageIO.read(new File("res/ghosts/orange/l-2.png"));
+            textureLeft[1] = ImageIO.read(new File("res/ghosts/orange/l-1.png"));
 
-            textureDown[0] = ImageIO.read(new File("res/ghosts/red/d-1.png"));
-            textureDown[1] = ImageIO.read(new File("res/ghosts/red/d-2.png"));
+            textureDown[0] = ImageIO.read(new File("res/ghosts/orange/d-1.png"));
+            textureDown[1] = ImageIO.read(new File("res/ghosts/orange/d-2.png"));
 
             textureIdle[0] = ImageIO.read(new File("res/ghosts/i-1.png"));
             textureIdle[1] = ImageIO.read(new File("res/ghosts/i-2.png"));
@@ -28,13 +28,14 @@ public class RedGhost extends Entity {
             textureFreeze[1] = ImageIO.read(new File("res/ghosts/f-2.png"));
 
         } catch (IOException e) {
-            System.err.println("Could not load red ghost sprite");
+            System.err.println("Could not load orange ghost sprite");
         }
 
-        direction = Direction.RIGHT;
+        direction = Direction.UP;
         texture = textureRight[0];
     }
 
+    @Override
     public void nextTexture() {
         switch (direction) {
             case UP -> texture = (texture == textureUp[0]) ? textureUp[1] : textureUp[0];

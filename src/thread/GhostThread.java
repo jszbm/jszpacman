@@ -11,15 +11,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class RedGhostThread extends Thread {
+public class GhostThread extends Thread {
 
     Entity entity;
     JTable mazeTable;
 
-    public RedGhostThread(Entity entity, JTable mazeTable) {
+    public GhostThread(Entity entity, JTable mazeTable) {
         this.entity = entity;
         this.mazeTable = mazeTable;
-
     }
 
     @Override

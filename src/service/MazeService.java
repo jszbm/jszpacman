@@ -23,6 +23,7 @@ public class MazeService {
             //Gate - 5
             //Red ghost - 6
             //Pac-Man - 7
+            //Pink ghost - 8
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
             {1, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 3, 3, 1},
             {1, 3, 1, 3, 1, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 1, 3, 1, 3, 1},
@@ -48,9 +49,9 @@ public class MazeService {
 
     // 5x7
     int[][] cage = {
-            {0, 0, 0, 0, 0, 0, 0},
+            {10, 0, 0, 0, 0, 0, 8},
             {0, 1, 1, 5, 1, 1, 0},
-            {0, 1, 6, 0, 0, 1, 0},
+            {0, 1, 6, 9, 0, 1, 0},
             {0, 1, 1, 1, 1, 1, 0},
             {0, 0, 0, 7, 0, 0, 0}
     };
@@ -79,7 +80,7 @@ public class MazeService {
         carve(startRow, startCol);
         fillEdges();
         deleteWalls(0.3);
-        addPowerDots(0.02);
+        addPowerDots(0.05);
         insertCage();
 
         return maze;
@@ -152,10 +153,12 @@ public class MazeService {
     }
 
     private void addPowerDots(double chance) {
+        int count = 0;
         for (int i = 1; i < rows - 1; i++) {
             for (int j = 1; j < cols - 1; j++) {
-                if (maze[i][j] == 3 && random.nextDouble() < chance) {
+                if (maze[i][j] == 3 && random.nextDouble() < chance && count < 5) {
                     maze[i][j] = 4;
+                    count++;
                 }
             }
         }

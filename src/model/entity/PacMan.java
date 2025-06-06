@@ -13,11 +13,6 @@ public class PacMan extends Entity implements KeyListener {
 
     BufferedImage textureIdle;
 
-    BufferedImage[] textureRight = new BufferedImage[2];
-    BufferedImage[] textureLeft = new BufferedImage[2];
-    BufferedImage[] textureUp = new BufferedImage[2];
-    BufferedImage[] textureDown = new BufferedImage[2];
-
     public PacMan() {
         try {
             textureIdle = ImageIO.read(new File("res/pacman/idle.png"));
@@ -40,7 +35,7 @@ public class PacMan extends Entity implements KeyListener {
 
         direction = Direction.IDLE;
         texture = textureIdle;
-        this.lives = 1;
+        this.lives = 3;
     }
 
     @Override

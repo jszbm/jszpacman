@@ -5,10 +5,7 @@ import controller.ScoreMapController;
 import model.PacManTableCellRenderer;
 import model.PacManTableModel;
 import model.cell.*;
-import model.entity.Direction;
-import model.entity.Entity;
-import model.entity.PacMan;
-import model.entity.RedGhost;
+import model.entity.*;
 import thread.GameThread;
 
 import javax.swing.*;
@@ -18,6 +15,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Set;
 
 public class GameFrame extends CustomFrame implements KeyListener {
     static final ScoreMapController scoreMapController = new ScoreMapController();
@@ -25,10 +23,25 @@ public class GameFrame extends CustomFrame implements KeyListener {
 
     PacMan player;
     RedGhost redGhost;
+    PinkGhost pinkGhost;
+    CyanGhost cyanGhost;
+    OrangeGhost orangeGhost;
+    Set<Class<?>> collisions = Set.of(
+            Wall.class,
+            Tunnel.class,
+            PinkGhost.class,
+            RedGhost.class,
+            CyanGhost.class,
+            OrangeGhost.class,
+            PacMan.class
+    );
 
     int orangeTimer = 0;
 
     int time;
+
+    int appleTimer = 0;
+    int ghostUpdateTime = 100;
 
     JTable mazeTable = new JTable();
 
@@ -132,8 +145,30 @@ public class GameFrame extends CustomFrame implements KeyListener {
                     redGhost.setRow(i);
                     redGhost.setColumn(j);
                     redGhost.getCellQueue().add(new Cell());
-                    break outer;
+                    continue;
                 }
+                if (mazeTable.getValueAt(i, j).getClass() == PinkGhost.class) {
+                    pinkGhost = (PinkGhost) mazeTable.getValueAt(i, j);
+                    pinkGhost.setRow(i);
+                    pinkGhost.setColumn(j);
+                    pinkGhost.getCellQueue().add(new Cell());
+                    continue;
+                }
+                if (mazeTable.getValueAt(i, j).getClass() == CyanGhost.class) {
+                    cyanGhost = (CyanGhost) mazeTable.getValueAt(i, j);
+                    cyanGhost.setRow(i);
+                    cyanGhost.setColumn(j);
+                    cyanGhost.getCellQueue().add(new Cell());
+                    continue;
+                }
+                if (mazeTable.getValueAt(i, j).getClass() == OrangeGhost.class) {
+                    orangeGhost = (OrangeGhost) mazeTable.getValueAt(i, j);
+                    orangeGhost.setRow(i);
+                    orangeGhost.setColumn(j);
+                    orangeGhost.getCellQueue().add(new Cell());
+                    continue;
+                }
+
             }
         }
 
@@ -169,13 +204,29 @@ public class GameFrame extends CustomFrame implements KeyListener {
 
     public void animateEntities() {
         player.nextTexture();
-        redGhost.nextTexture();
+        if (appleTimer == 0) {
+            redGhost.nextTexture();
+            pinkGhost.nextTexture();
+            cyanGhost.nextTexture();
+            orangeGhost.nextTexture();
+        } else {
+            redGhost.nextFreezeTexture();
+            pinkGhost.nextFreezeTexture();
+            cyanGhost.nextFreezeTexture();
+            orangeGhost.nextFreezeTexture();
+        }
     }
 
     public void setTime(int time) {
         this.time = time;
         if (orangeTimer != 0) {
             orangeTimer--;
+        }
+        if (appleTimer != 0) {
+            appleTimer--;
+            ghostUpdateTime = 250;
+        } else {
+            ghostUpdateTime = 125;
         }
     }
 
@@ -205,50 +256,65 @@ public class GameFrame extends CustomFrame implements KeyListener {
         mazeTable.setPreferredSize(new Dimension(cols * cellSize, rows * cellSize));
     }
 
-    public synchronized void executeGameLogic() {
+    public void executeGameLogic() {
+        if (player.getLives() <= 0) {
+            gameOver();
+        }
         if (mazeTableModel.getDotCount() == 0) {
             gameOver();
         }
         if (player.getDirection() != Direction.IDLE) {
             movePlayer();
         }
+    }
 
+    public void executeGhostLogic() {
         if (redGhost.getDirection() == Direction.IDLE && orangeTimer == 0) {
             redGhost.setDirection(Direction.UP);
         }
-        moveRedGhost();
+        if (pinkGhost.getDirection() == Direction.IDLE && orangeTimer == 0) {
+            pinkGhost.setDirection(Direction.UP);
+        }
+        if (cyanGhost.getDirection() == Direction.IDLE && orangeTimer == 0) {
+            cyanGhost.setDirection(Direction.UP);
+        }
+
+        moveEntity(redGhost);
+        moveEntity(pinkGhost);
+        moveEntity(cyanGhost);
+        moveEntity(orangeGhost);
     }
 
-    public void moveRedGhost() {
+    public synchronized void moveEntity(Entity entity) {
         int desiredRow;
         int desiredColumn;
-        int row = redGhost.getRow();
-        int column = redGhost.getColumn();
+        int row = entity.getRow();
+        int column = entity.getColumn();
 
-        if (orangeTimer == 0) {
-            switch (redGhost.getDirection()) {
+        if (orangeTimer == 0 || entity.getClass() == OrangeGhost.class) {
+            switch (entity.getDirection()) {
                 case UP:
                     desiredRow = row - 1;
                     desiredColumn = column;
-                    processEntity(redGhost, desiredRow, desiredColumn);
+                    processEntity(entity, desiredRow, desiredColumn);
                     break;
 
                 case DOWN:
                     desiredRow = row + 1;
                     desiredColumn = column;
-                    processEntity(redGhost, desiredRow, desiredColumn);
+                    processEntity(entity, desiredRow, desiredColumn);
                     break;
 
                 case RIGHT:
                     desiredRow = row;
                     desiredColumn = column + 1;
-                    processEntity(redGhost, desiredRow, desiredColumn);
+                    processEntity(entity, desiredRow, desiredColumn);
                     break;
 
                 case LEFT:
                     desiredRow = row;
                     desiredColumn = column - 1;
-                    processEntity(redGhost, desiredRow, desiredColumn);
+                    processEntity(entity, desiredRow, desiredColumn);
                     break;
 
                 default:
@@ -256,7 +322,7 @@ public class GameFrame extends CustomFrame implements KeyListener {
 
             }
         } else {
-            redGhost.setDirection(Direction.IDLE);
+            entity.setDirection(Direction.IDLE);
         }
 
     }
@@ -293,9 +359,6 @@ public class GameFrame extends CustomFrame implements KeyListener {
                 break;
 
             case IDLE:
-                if (player.getLives() == 0) {
-                    gameOver();
-                }
                 break;
 
         }
@@ -310,7 +373,7 @@ public class GameFrame extends CustomFrame implements KeyListener {
                 player.subtractLives();
             }
 
-            if (desiredCellClass != Wall.class && desiredCellClass != Tunnel.class) {
+            if (!collisions.contains(desiredCellClass)) {
 
                 Cell leaveBehind = entity.getCellQueue().poll();
 
@@ -318,7 +381,11 @@ public class GameFrame extends CustomFrame implements KeyListener {
                     if (leaveBehind.getClass() == Dot.class) {
                         mazeTableModel.deleteDot();
                     }
-                    leaveBehind = new Orange();
+                    if (Math.random() > 0.5) {
+                        leaveBehind = new Orange();
+                    } else {
+                        leaveBehind = new Apple();
+                    }
                 }
 
                 entity.getCellQueue().add(desiredCell);
@@ -337,15 +404,25 @@ public class GameFrame extends CustomFrame implements KeyListener {
         try {
             var desiredCellClass = maze.getValueAt(desiredRow, desiredColumn).getClass();
 
-            if (desiredCellClass == RedGhost.class && player.getLives() > 0) {
-                player.subtractLives();
-            } else if (player.getLives() == 0) {
-                gameOver();
-            }
-
             if (desiredCellClass == Orange.class) {
                 score += 100;
                 orangeTimer = 50;
+            }
+
+            if (desiredCellClass == Apple.class) {
+                score += 100;
+                appleTimer = 50;
+            }
+
+            if (desiredCellClass == RedGhost.class ||
+                    desiredCellClass == PinkGhost.class ||
+                    desiredCellClass == CyanGhost.class ||
+                    desiredCellClass == Orange.class) {
+                if (orangeTimer == 0) {
+                    player.subtractLives();
+                } else {
+                    score += 1000;
+                }
             }
 
             if (desiredCellClass != Wall.class && desiredCellClass != Gate.class) {
@@ -372,7 +449,9 @@ public class GameFrame extends CustomFrame implements KeyListener {
     @Override
     public void processQuitShortcut() {
         if (isCtrlPressed && isShiftPressed && isQPressed) {
-            gameOver();
+            shortcutThread.interrupt();
+            gameThread.interrupt();
+            this.dispose();
         }
     }
 
@@ -404,9 +483,27 @@ public class GameFrame extends CustomFrame implements KeyListener {
         return mazeTable;
     }
 
+    public OrangeGhost getOrangeGhost() {
+        return orangeGhost;
+    }
+
+    public CyanGhost getCyanGhost() {
+        return cyanGhost;
+    }
+
     public RedGhost getRedGhost() {
         return redGhost;
     }
 
+    public PinkGhost getPinkGhost() {
+        return pinkGhost;
+    }
 
+    public int getGhostUpdateTime() {
+        return ghostUpdateTime;
+    }
+
+    public Set<Class<?>> getCollisions() {
+        return collisions;
+    }
 }

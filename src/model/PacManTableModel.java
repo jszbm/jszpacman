@@ -1,8 +1,7 @@
 package model;
 
 import model.cell.*;
-import model.entity.PacMan;
-import model.entity.RedGhost;
+import model.entity.*;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -50,6 +49,19 @@ public class PacManTableModel extends AbstractTableModel {
                         convertedMaze[row][i] = new PacMan();
                         System.out.println("Pac Man: " + row + " " + i);
                         break;
+                    case 8:
+                        convertedMaze[row][i] = new PinkGhost();
+                        System.out.println("Pink ghost: " + row + " " + i);
+                        break;
+                    case 9:
+                        convertedMaze[row][i] = new CyanGhost();
+                        System.out.println("Cyan ghost: " + row + " " + i);
+                        break;
+                    case 10:
+                        convertedMaze[row][i] = new OrangeGhost();
+                        System.out.println("Orange ghost: " + row + " " + i);
+                        break;
+
                     default:
                         convertedMaze[row][i] = new Cell();
                 }

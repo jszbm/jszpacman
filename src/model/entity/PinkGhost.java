@@ -4,22 +4,22 @@ import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 
-public class RedGhost extends Entity {
+public class PinkGhost extends Entity {
 
-    public RedGhost() {
+    public PinkGhost() {
         try {
 
-            textureRight[0] = ImageIO.read(new File("res/ghosts/red/r-1.png"));
-            textureRight[1] = ImageIO.read(new File("res/ghosts/red/r-2.png"));
+            textureRight[0] = ImageIO.read(new File("res/ghosts/pink/r-1.png"));
+            textureRight[1] = ImageIO.read(new File("res/ghosts/pink/r-2.png"));
 
-            textureUp[0] = ImageIO.read(new File("res/ghosts/red/u-1.png"));
-            textureUp[1] = ImageIO.read(new File("res/ghosts/red/u-2.png"));
+            textureUp[0] = ImageIO.read(new File("res/ghosts/pink/u-1.png"));
+            textureUp[1] = ImageIO.read(new File("res/ghosts/pink/u-2.png"));
 
-            textureLeft[0] = ImageIO.read(new File("res/ghosts/red/l-2.png"));
-            textureLeft[1] = ImageIO.read(new File("res/ghosts/red/l-1.png"));
+            textureLeft[0] = ImageIO.read(new File("res/ghosts/pink/l-2.png"));
+            textureLeft[1] = ImageIO.read(new File("res/ghosts/pink/l-1.png"));
 
-            textureDown[0] = ImageIO.read(new File("res/ghosts/red/d-1.png"));
-            textureDown[1] = ImageIO.read(new File("res/ghosts/red/d-2.png"));
+            textureDown[0] = ImageIO.read(new File("res/ghosts/pink/d-1.png"));
+            textureDown[1] = ImageIO.read(new File("res/ghosts/pink/d-2.png"));
 
             textureIdle[0] = ImageIO.read(new File("res/ghosts/i-1.png"));
             textureIdle[1] = ImageIO.read(new File("res/ghosts/i-2.png"));
@@ -28,10 +28,10 @@ public class RedGhost extends Entity {
             textureFreeze[1] = ImageIO.read(new File("res/ghosts/f-2.png"));
 
         } catch (IOException e) {
-            System.err.println("Could not load red ghost sprite");
+            System.err.println("Could not load pink ghost sprite");
         }
 
-        direction = Direction.RIGHT;
+        direction = Direction.LEFT;
         texture = textureRight[0];
     }
 
